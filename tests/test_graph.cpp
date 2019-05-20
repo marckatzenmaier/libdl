@@ -11,6 +11,9 @@
 #include <libdl/Optimizer.h>
 #include "libdl/initializer.h"
 
+using namespace std;
+using namespace Eigen;
+
 SCENARIO( "Test Graph", "[Node]"){
     GIVEN("Basic Nodes which forms a simple matrix multiplication graph"){
         string name = "test_opp";

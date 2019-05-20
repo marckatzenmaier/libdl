@@ -9,6 +9,9 @@
 #include "libdl/opperation.h"
 #include <iostream>
 using namespace Catch::literals;
+
+using namespace std;
+using namespace Eigen;
 SCENARIO( "Test Opperation", "[Node]"){
     GIVEN("input nodes, name Node"){
         string name = "test_opp";

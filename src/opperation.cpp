@@ -8,6 +8,9 @@
 #include <libdl/graph_node.h>
 #include "libdl/opperation.h"
 
+using namespace std;
+using namespace Eigen;
+
 Opperation::Opperation(const std::__cxx11::basic_string<char> &name,
                        const vector<shared_ptr<GraphNode> > &inputs) : GraphNode(name, MatrixXf()) {
     Opperation::input_vec = inputs;

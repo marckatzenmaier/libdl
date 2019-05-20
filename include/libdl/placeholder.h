@@ -16,7 +16,7 @@ public:
 
     void backward() override{};
 
-    string getType() override {return "Placeholder";}
+    std::string getType() override {return "Placeholder";}
 private:
     Tensor innerState;
 };

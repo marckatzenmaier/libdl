@@ -10,33 +10,33 @@
 #include <string>
 #include <memory>
 #include <iostream>
-using namespace std;
-using namespace Eigen;
+//using namespace std;
+//using namespace Eigen;
 
 typedef struct Tensor{
     Eigen::MatrixXf data;
     Eigen::MatrixXf gradient;
 }Tensor;
-typedef shared_ptr<Tensor> TensorPtr;
+typedef std::shared_ptr<Tensor> TensorPtr;
 
 class GraphNode{
     static int node_count;
 protected:
-    string name;
-    MatrixXf data;
-    MatrixXf gradient;
+    std::string name;
+    Eigen::MatrixXf data;
+    Eigen::MatrixXf gradient;
 public:
-    void setData(const MatrixXf &data);
-    const MatrixXf &getGradient() const;
+    void setData(const Eigen::MatrixXf &data);
+    const Eigen::MatrixXf &getGradient() const;
     void setGradient(const Eigen::MatrixXf &gradient);
-    const MatrixXf &getData() const;
-    GraphNode(const string& name, const MatrixXf& data = MatrixXf());
-    const string &getName() const;
+    const Eigen::MatrixXf &getData() const;
+    GraphNode(const std::string& name, const Eigen::MatrixXf& data = Eigen::MatrixXf());
+    const std::string &getName() const;
     virtual void forward(){}
     virtual void backward(){}
-    virtual string getType(){return "GraphNode";}
+    virtual std::string getType(){return "GraphNode";}
 };
-typedef vector<shared_ptr<GraphNode> > NodeVec;
+typedef std::vector<std::shared_ptr<GraphNode> > NodeVec;
 
 
 

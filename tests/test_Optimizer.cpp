@@ -9,6 +9,8 @@
 #include <libdl/graph.h>
 #include "libdl/Optimizer.h"
 
+using namespace std;
+using namespace Eigen;
 SCENARIO( "Test Optimizer", "[Node]"){
     GIVEN("Basic Nodes which forms a simple matrix multiplication graph"){
         string name = "test_opp";

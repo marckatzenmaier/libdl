@@ -18,9 +18,9 @@
 #include "libdl/opperation.h"
 class Optimizer{
 protected:
-    vector<shared_ptr<Variable> > variable_vec;
+    std::vector<std::shared_ptr<Variable> > variable_vec;
 public:
-    explicit Optimizer(const vector<shared_ptr<Variable>> &variable_vec){Optimizer::variable_vec = variable_vec;}
+    explicit Optimizer(const std::vector<std::shared_ptr<Variable>> &variable_vec){Optimizer::variable_vec = variable_vec;}
     virtual void optimize()=0;
 };
 
@@ -28,7 +28,7 @@ class SGD_Optimizer : Optimizer{
 private:
     float learning_rate;
 public:
-    SGD_Optimizer(const vector<shared_ptr<Variable>> &variable_vec, float learning_rate):Optimizer(variable_vec){SGD_Optimizer::learning_rate=learning_rate;}
+    SGD_Optimizer(const std::vector<std::shared_ptr<Variable>> &variable_vec, float learning_rate):Optimizer(variable_vec){SGD_Optimizer::learning_rate=learning_rate;}
     void optimize() override;
 
 };

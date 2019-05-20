@@ -5,6 +5,9 @@
 #include "libdl/graph_node.h"
 #include <iostream>
 
+using namespace std;
+using namespace Eigen;
+
 /*SCENARIO( "", "[]"){
     GIVEN(""){
         WHEN(""){

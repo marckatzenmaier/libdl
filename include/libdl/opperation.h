@@ -13,9 +13,9 @@
 
 class Opperation : public GraphNode{
 public:
-    Opperation(const string &name, const NodeVec &inputs);
+    Opperation(const std::string &name, const NodeVec &inputs);
     const NodeVec &getInputVec() const;
-    string getType() override {return "Opperation";}
+    std::string getType() override {return "Opperation";}
 
 protected:
     NodeVec input_vec;
@@ -24,27 +24,27 @@ protected:
 
 class MatrixMultiplication : public  Opperation{
 public:
-    MatrixMultiplication(const string &name, const NodeVec &inputs);
+    MatrixMultiplication(const std::string &name, const NodeVec &inputs);
     void forward() override;
     void backward() override;
 
 };
 class ElementwiseAdd : public  Opperation{
 public:
-    ElementwiseAdd(const string &name, const NodeVec &inputs);
+    ElementwiseAdd(const std::string &name, const NodeVec &inputs);
     void forward() override;
     void backward() override;
 };
 
 class Sigmoid : public  Opperation{
 public:
-    Sigmoid(const string &name, const NodeVec &inputs);
+    Sigmoid(const std::string &name, const NodeVec &inputs);
     void forward() override;
     void backward() override;
 };
 class ReLU : public  Opperation{
 public:
-    ReLU(const string &name, const NodeVec &inputs);
+    ReLU(const std::string &name, const NodeVec &inputs);
     void forward() override;
     void backward() override;
 };

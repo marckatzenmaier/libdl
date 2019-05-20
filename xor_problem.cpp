@@ -14,6 +14,10 @@
 #include <random>       // std::default_random_engine
 //shuffle (foo.begin(), foo.end(), std::default_random_engine(seed));
 
+
+using namespace std;
+using namespace Eigen;
+
 int main()
 {
     const int input_neurons = 2;

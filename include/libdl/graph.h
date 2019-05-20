@@ -14,24 +14,24 @@
 #include "libdl/Constant.h"
 #include "libdl/Variable.h"
 
-typedef vector<Opperation> OpperationVec;
+typedef std::vector<Opperation> OpperationVec; //todo why i need this
 
 class Graph{
 private:
     void calc_forward_order();
     void calc_backward_order();
-    vector<shared_ptr<GraphNode> > forward_order;
-    vector<shared_ptr<GraphNode> > backward_order;
-    shared_ptr<GraphNode> endpoint;
-    vector<shared_ptr<Opperation> > opperation_vec;
-    vector<shared_ptr<Variable> > variable_vec;
-    vector<shared_ptr<Placeholder> > placeholder_vec;
+    std::vector<std::shared_ptr<GraphNode> > forward_order;
+    std::vector<std::shared_ptr<GraphNode> > backward_order;
+    std::shared_ptr<GraphNode> endpoint;
+    std::vector<std::shared_ptr<Opperation> > opperation_vec;
+    std::vector<std::shared_ptr<Variable> > variable_vec;
+    std::vector<std::shared_ptr<Placeholder> > placeholder_vec;
 public:
-    Graph(const shared_ptr<GraphNode>&  endpoint);
-    MatrixXf forward();
+    Graph(const std::shared_ptr<GraphNode>&  endpoint);
+    Eigen::MatrixXf forward();
     void backward();
     void setPlaceholder();
-    vector<shared_ptr<Variable> > getWeights();
+    std::vector<std::shared_ptr<Variable> > getWeights();
 };
 
 #endif //TEST_GRAPH_H

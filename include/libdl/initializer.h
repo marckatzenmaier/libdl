@@ -10,7 +10,7 @@
 #include "libdl/opperation.h"
 #include <libdl/graph.h>
 #include <libdl/Optimizer.h>
-void init_random(shared_ptr<GraphNode> variable);
+void init_random(std::shared_ptr<GraphNode> variable);
 
-void init_weights_random(const vector<shared_ptr<Variable>> &variable_vec);
+void init_weights_random(const std::vector<std::shared_ptr<Variable>> &variable_vec);
 #endif //TEST_INITIALIZER_H

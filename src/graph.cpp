@@ -14,6 +14,10 @@
 #include "libdl/graph_node.h"
 #include "libdl/Variable.h"
 #include "libdl/opperation.h"
+
+using namespace std;
+using namespace Eigen;
+
 struct search_graph_node{
     shared_ptr<GraphNode> node;
     bool visited = false;

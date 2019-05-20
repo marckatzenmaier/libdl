@@ -9,6 +9,9 @@
 #include <memory>
 #include <iostream>
 
+using namespace std;
+using namespace Eigen;
+
 // graphnode starts here
 int GraphNode::node_count = 0;
 

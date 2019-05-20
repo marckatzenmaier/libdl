@@ -12,6 +12,9 @@
 #include <libdl/Optimizer.h>
 #include <random>
 
+using namespace std;
+using namespace Eigen;
+
 void init_random(const shared_ptr<Variable>& variable){//xavier
     std::default_random_engine generator;
     std::normal_distribution<float> distribution(0,1.0);// /(variable->getData().rows()*variable->getData().cols()));

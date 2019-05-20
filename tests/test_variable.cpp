@@ -8,6 +8,9 @@
 #include <iostream>
 #include "libdl/Variable.h"
 
+using namespace std;
+using namespace Eigen;
+
 SCENARIO( "Test Variable", "[Node]"){
     GIVEN("Variable Node, data, gradient"){
 
