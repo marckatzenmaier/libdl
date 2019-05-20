@@ -27,7 +27,7 @@ private:
     vector<shared_ptr<Variable> > variable_vec;
     vector<shared_ptr<Placeholder> > placeholder_vec;
 public:
-    Graph(shared_ptr<GraphNode>  endpoint);
+    Graph(const shared_ptr<GraphNode>&  endpoint);
     MatrixXf forward();
     void backward();
     void setPlaceholder();
