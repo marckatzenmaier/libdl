@@ -38,7 +38,7 @@ include(code-coverage.cmake)
 include(sanitizers.cmake)
 
 #add_subdirectory(src)
-set(SRC_FILES src/test.cpp src/graph_node.cpp include/libdl/opperation_node.h include/libdl/Constant.h include/libdl/Variable.h include/libdl/opperation.h include/libdl/placeholder.h include/libdl/graph.h src/Constant.cpp src/Variable.cpp src/opperation.cpp src/placeholder.cpp src/graph.cpp include/libdl/Optimizer.h src/Optimizer.cpp include/libdl/loss.h src/loss.cpp include/libdl/initializer.h src/initializer.cpp)
+set(SRC_FILES src/test.cpp src/graph_node.cpp include/libdl/opperation_node.h include/libdl/Constant.h include/libdl/Variable.h include/libdl/opperation.h include/libdl/placeholder.h include/libdl/graph.h src/Constant.cpp src/Variable.cpp src/opperation.cpp src/placeholder.cpp src/graph.cpp include/libdl/Optimizer.h src/Optimizer.cpp include/libdl/loss.h src/loss.cpp include/libdl/initializer.h src/initializer.cpp src/math_functions.cpp include/libdl/math_functions.h)
 
 
 add_library(${MY_LIB_NAME} SHARED ${SRC_FILES})
@@ -59,7 +59,7 @@ endif()
 set_target_properties(${MY_LIB_NAME} PROPERTIES CXX_CLANG_TIDY "${CMAKE_CXX_CLANG_TIDY}")
 
 
-set(TEST_SRC_FILES  tests/mainTest.cpp tests/trytest.cpp tests/test_graph_node.cpp tests/test_opperation_node.cpp tests/test_variable.cpp tests/test_constant.cpp tests/test_opperation.cpp tests/test_placeholder.cpp tests/test_graph.cpp tests/test_Optimizer.cpp tests/test_loss.cpp tests/test_initializer.cpp)
+set(TEST_SRC_FILES  tests/mainTest.cpp tests/trytest.cpp tests/test_graph_node.cpp tests/test_opperation_node.cpp tests/test_variable.cpp tests/test_constant.cpp tests/test_opperation.cpp tests/test_placeholder.cpp tests/test_graph.cpp tests/test_Optimizer.cpp tests/test_loss.cpp tests/test_initializer.cpp tests/test_math_functions.cpp)
 add_executable(my_tests ${TEST_SRC_FILES})
 target_link_libraries(my_tests PRIVATE Catch2)
 target_link_libraries(my_tests PRIVATE eigen)
