@@ -22,16 +22,15 @@ SCENARIO( "Test Graph Node basics", "[Node]"){
     GIVEN("name and data"){
 
         string name = "test";
-        MatrixXf data = Eigen::MatrixXf(3,4);
-        data(0,0) = 1;
-        MatrixXf grad_wrong_size = Eigen::MatrixXf(1,2);
-        grad_wrong_size(0,0) = 2;
-        MatrixXf data_different_size = Eigen::MatrixXf(2,3);
-        data_different_size(0,0) = 3;
-        MatrixXf grad_right_size = Eigen::MatrixXf(3,4);
-        grad_right_size(0,0) = 4;
-        MatrixXf data_right_size = Eigen::MatrixXf(3,4);
-        data_right_size(0,0) = 5;
+        Tensor4f data = Tensor4f(1,2,3,4);
+        data(0,0,0,0) = 1;
+        Tensor4f grad_wrong_size = Tensor4f(1,2,3,5);
+        Tensor4f data_different_size = Tensor4f(2,3,4,5);
+        Tensor4f grad_right_size = Tensor4f(1,2,3,4);
+        grad_right_size(0,0,0,0) = 4;
+        Tensor4f data_right_size = Tensor4f(1,2,3,4);
+        data_right_size(0,0,0,0) = 5;
+        Tensor4f data_different_batch_size = Tensor4f(5,2,3,4);
 
         WHEN("Call Node constructed only with name"){
             GraphNode node = GraphNode(name);
@@ -39,44 +38,56 @@ SCENARIO( "Test Graph Node basics", "[Node]"){
                 CHECK(name == node.getName());
             }
         }
-        WHEN("Call Node constructed with name and data"){
-            GraphNode node = GraphNode(name, data);
-            THEN("Name should be this name and data should match"){
-                CHECK(name == node.getName());
-                CHECK(node.getData().rows() == 3);
-                CHECK(node.getData().cols() == 4);
-                CHECK(node.getData()(0,0) == 1);
-                CHECK(node.getGradient().rows() == 3);
-                CHECK(node.getGradient().cols() == 4);
-            }
-        }
         WHEN("setting and getting data"){
-            GraphNode node = GraphNode(name, data);
+            GraphNode node = GraphNode(name);
             node.setData(data_right_size);
             THEN("data should be set properly and throw an error if size changes"){
-                CHECK(node.getData().rows() == 3);
-                CHECK(node.getData().cols() == 4);
-                CHECK(node.getData()(0,0) == 5);
+                CHECK(node.getData().dimension(0) == 1);
+                CHECK(node.getData().dimension(1) == 2);
+                CHECK(node.getData().dimension(2) == 3);
+                CHECK(node.getData().dimension(3) == 4);
+                CHECK(node.getData()(0,0,0,0) == 5);
                 CHECK_THROWS_WITH(node.setData(data_different_size), Catch::Contains( "error data size changing forbidden"));
+                CHECK_NOTHROW(node.setData(data_different_batch_size));
             }
         }
-        WHEN("setting data with different sice and previous size was 0,0"){
-            GraphNode node = GraphNode(name, MatrixXf());
-            THEN("data should be set properly and throw no error"){
-                CHECK_NOTHROW(node.setData(data_right_size));
-                CHECK(node.getData().rows() == 3);
-                CHECK(node.getData().cols() == 4);
-                CHECK(node.getData()(0,0) == 5);
-            }
-        }
-        WHEN("setting and getting data"){
-            GraphNode node = GraphNode(name, data);
+        WHEN("setting and getting gradient"){
+            GraphNode node = GraphNode(name);
+            node.setData(data_right_size);
             node.setGradient(grad_right_size);
-            THEN("data should be set properly and throw an error if size changes"){
-                CHECK(node.getGradient().rows() == 3);
-                CHECK(node.getGradient().cols() == 4);
-                CHECK(node.getGradient()(0,0) == 4);
+            THEN("gradient should be set properly and throw an error if size changes"){
+                CHECK(node.getGradient().dimension(0) == 1);
+                CHECK(node.getGradient().dimension(1) == 2);
+                CHECK(node.getGradient().dimension(2) == 3);
+                CHECK(node.getGradient().dimension(3) == 4);
+                CHECK(node.getGradient()(0,0,0,0) == 4);
                 CHECK_THROWS_WITH(node.setGradient(grad_wrong_size), Catch::Contains( "error gradient size miss match"));
+            }
+        }
+        WHEN("clear gradient"){
+            GraphNode node = GraphNode(name);
+            node.setData(data_right_size);
+            node.setGradient(grad_right_size);
+            node.clearGradient();
+            THEN("gradient should be set to 0"){
+                CHECK(node.getGradient().dimension(0) == 1);
+                CHECK(node.getGradient().dimension(1) == 2);
+                CHECK(node.getGradient().dimension(2) == 3);
+                CHECK(node.getGradient().dimension(3) == 4);
+                CHECK(node.getGradient()(0,0,0,0) == 0);
+            }
+        }
+        WHEN("add gradient"){
+            GraphNode node = GraphNode(name);
+            node.setData(data_right_size);
+            node.setGradient(grad_right_size);
+            node.addGradient(grad_right_size);
+            THEN("gradient should be set to 0"){
+                CHECK(node.getGradient().dimension(0) == 1);
+                CHECK(node.getGradient().dimension(1) == 2);
+                CHECK(node.getGradient().dimension(2) == 3);
+                CHECK(node.getGradient().dimension(3) == 4);
+                CHECK(node.getGradient()(0,0,0,0) == 8);
             }
         }
 

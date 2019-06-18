@@ -7,6 +7,8 @@
 #include <iostream>
 using namespace Eigen;
 
+using namespace Catch::literals;
+
 SCENARIO( "Test conv2d_NHWC", "[Math]"){
     WHEN("input simple kernel 2x2x1x1"){
         int N = 1, H = 3, W = 3, C=1, kernel_h = 2, kernel_w = 2, kernel_ci=1,kernel_co=1, out_h=2, out_w=2;
@@ -514,6 +516,324 @@ SCENARIO( "Test conv2d_NHWC_backprop_input", "[Math]"){
         THEN("output should be like expected") {
             Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values - input).abs().maximum();
             CHECK(ret_val(0) == 0);
+        }
+    }
+}
+
+SCENARIO( "Test sigmoid", "[Math]") {
+    WHEN("input simple tensor") {
+        Eigen::Tensor<float, 4, RowMajor> input(2,1,1,3), output; //b,h,w,c
+
+        input.setValues({{{{1,2,3}}},{{{4,5,6}}}});
+        output = sigmoid(input);
+
+        THEN("output should be like expected and dim should fit") {
+            CHECK(output.dimension(0) == 2);
+            CHECK(output.dimension(1) == 1);
+            CHECK(output.dimension(2) == 1);
+            CHECK(output.dimension(3) == 3);
+            CHECK(output(0,0,0,0) == 0.73105858_a);
+            CHECK(output(0,0,0,1) == 0.88079708_a);
+            CHECK(output(0,0,0,2) == 0.95257413_a);
+            CHECK(output(1,0,0,0) == 0.98201379_a);
+            CHECK(output(1,0,0,1) == 0.99330715_a);
+            CHECK(output(1,0,0,2) == 0.99752738_a);
+        }
+    }
+}
+
+SCENARIO( "Test average_pooling", "[Math]") {
+    WHEN("simple average pooling") {
+        Eigen::Tensor<float, 4, RowMajor> input(1,4,4,1), output; //b,h,w,c
+        input.setValues({{{{ 1},{ 2},{ 3},{ 4}},
+                          {{ 5},{ 6},{ 7},{ 8}},
+                          {{ 9},{10},{11},{12}},
+                          {{13},{14},{15},{16}}}});
+        output = pool_average(input,2,2,1,1);
+
+        THEN("output should be like expected and dim should fit") {
+            Eigen::Tensor<float, 4, RowMajor> expected_values(1,3,3,1);
+            expected_values.setValues({{{{ 3.5},{ 4.5},{ 5.5}},
+                                        {{ 7.5},{ 8.5},{ 9.5}},
+                                        {{11.5},{12.5},{13.5}}}});
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values - output).abs().maximum();
+            CHECK(ret_val(0) == 0);
+        }
+    }
+    WHEN("simple average pooling stride 2") {
+        Eigen::Tensor<float, 4, RowMajor> input(1,4,4,1), output; //b,h,w,c
+        input.setValues({{{{ 1},{ 2},{ 3},{ 4}},
+                                 {{ 5},{ 6},{ 7},{ 8}},
+                                 {{ 9},{10},{11},{12}},
+                                 {{13},{14},{15},{16}}}});
+        output = pool_average(input,2,2,2,2);
+
+        THEN("output should be like expected and dim should fit") {
+            Eigen::Tensor<float, 4, RowMajor> expected_values(1,2,2,1);
+            expected_values.setValues({{{{ 3.5},{ 5.5}},
+                                        {{11.5},{13.5}}}});
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values - output).abs().maximum();
+            CHECK(ret_val(0) == 0);
+        }
+    }
+    WHEN("simple average pooling stride 2 and batch 2") {
+        Eigen::Tensor<float, 4, RowMajor> input(2,4,4,1), output; //b,h,w,c
+        input.setValues({{{{ 1},{ 2},{ 3},{ 4}},
+                          {{ 5},{ 6},{ 7},{ 8}},
+                          {{ 9},{10},{11},{12}},
+                          {{13},{14},{15},{16}}},
+                         {{{ 1},{ 2},{ 3},{ 4}},
+                          {{ 5},{ 6},{ 7},{ 8}},
+                          {{ 9},{10},{11},{12}},
+                          {{13},{14},{15},{16}}}});
+        output = pool_average(input,2,2,2,2);
+
+        THEN("output should be like expected and dim should fit") {
+            Eigen::Tensor<float, 4, RowMajor> expected_values(2,2,2,1);
+            expected_values.setValues({{{{ 3.5},{ 5.5}},
+                                        {{11.5},{13.5}}},
+                                       {{{ 3.5},{ 5.5}},
+                                        {{11.5},{13.5}}}});
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values - output).abs().maximum();
+            CHECK(ret_val(0) == 0);
+        }
+    }
+    WHEN("simple average pooling stride 2 and channel 2") {
+        Eigen::Tensor<float, 4, RowMajor> input(1, 4, 4, 2), output; //b,h,w,c
+        input.setValues({{{{1, 1}, {2, 2}, {3, 3}, {4, 4}},
+                                 {{5, 5}, {6, 6}, {7, 7}, {8, 8}},
+                                 {{9, 9}, {10, 10}, {11, 11}, {12, 12}},
+                                 {{13, 13}, {14, 14}, {15, 15}, {16, 16}}}});
+        output = pool_average(input, 2, 2, 2, 2);
+
+        THEN("output should be like expected and dim should fit") {
+            Eigen::Tensor<float, 4, RowMajor> expected_values(1, 2, 2, 2);
+            expected_values.setValues({{{{3.5, 3.5}, {5.5, 5.5}},
+                                               {{11.5, 11.5}, {13.5, 13.5}}}});
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values - output).abs().maximum();
+            CHECK(ret_val(0) == 0);
+        }
+    }
+    WHEN("simple average pooling stride 2, batch 2 and channel 2") {
+        Eigen::Tensor<float, 4, RowMajor> input(2, 4, 4, 2), output; //b,h,w,c
+        input.setValues({{{{1, 1}, {2, 2}, {3, 3}, {4, 4}},
+                                 {{5, 5}, {6, 6}, {7, 7}, {8, 8}},
+                                 {{9, 9}, {10, 10}, {11, 11}, {12, 12}},
+                                 {{13, 13}, {14, 14}, {15, 15}, {16, 16}}},
+                         {{{1, 1}, {2, 2}, {3, 3}, {4, 4}},
+                                 {{5, 5}, {6, 6}, {7, 7}, {8, 8}},
+                                 {{9, 9}, {10, 10}, {11, 11}, {12, 12}},
+                                 {{13, 13}, {14, 14}, {15, 15}, {16, 16}}}});
+        output = pool_average(input, 2, 2, 2, 2);
+
+        THEN("output should be like expected and dim should fit") {
+            Eigen::Tensor<float, 4, RowMajor> expected_values(2, 2, 2, 2);
+            expected_values.setValues({{{{3.5, 3.5}, {5.5, 5.5}},
+                                               {{11.5, 11.5}, {13.5, 13.5}}},
+                                       {{{3.5, 3.5}, {5.5, 5.5}},
+                                               {{11.5, 11.5}, {13.5, 13.5}}}});
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values - output).abs().maximum();
+            CHECK(ret_val(0) == 0);
+        }
+    }
+}
+SCENARIO( "Test upscale", "[Math]") {
+    WHEN("upscale in by 2 in both directions") {
+        Eigen::Tensor<float, 4, RowMajor> input(2,2,2,2);
+        input.setValues({{{{ 11, 12},{ 21, 22}},
+                          {{ 51, 52},{ 61, 62}}},
+                         {{{ 211, 212},{ 221, 222}},
+                          {{ 251, 252},{ 261, 262}}}});
+        THEN("output should be like expected and dim should fit") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(2,4,4,2);
+            Eigen::Tensor<float, 4, RowMajor> output;
+            expected_output.setValues({{{{ 11, 12},{ 11, 12},{ 21, 22},{ 21, 22}},
+                                        {{ 11, 12},{ 11, 12},{ 21, 22},{ 21, 22}},
+                                        {{ 51, 52},{ 51, 52},{ 61, 62},{ 61, 62}},
+                                        {{ 51, 52},{ 51, 52},{ 61, 62},{ 61, 62}}},
+                                      {{{ 211, 212},{ 211, 212},{ 221, 222},{ 221, 222}},
+                                       {{ 211, 212},{ 211, 212},{ 221, 222},{ 221, 222}},
+                                       {{ 251, 252},{ 251, 252},{ 261, 262},{ 261, 262}},
+                                       {{ 251, 252},{ 251, 252},{ 261, 262},{ 261, 262}}}});
+            output = nn_upscale(input,2,2);
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) == 0);
+        }
+    }
+
+    WHEN("upscale in height 3 and width 2") {
+        Eigen::Tensor<float, 4, RowMajor> input(2,2,2,2);
+        input.setValues({{{{ 11, 12},{ 21, 22}},
+                                 {{ 51, 52},{ 61, 62}}},
+                         {{{ 211, 212},{ 221, 222}},
+                                 {{ 251, 252},{ 261, 262}}}});
+        THEN("output should be like expected and dim should fit") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(2,6,4,2);
+            Eigen::Tensor<float, 4, RowMajor> output;
+            expected_output.setValues({{{{ 11, 12},{ 11, 12},{ 21, 22},{ 21, 22}},
+                                        {{ 11, 12},{ 11, 12},{ 21, 22},{ 21, 22}},
+                                        {{ 11, 12},{ 11, 12},{ 21, 22},{ 21, 22}},
+                                        {{ 51, 52},{ 51, 52},{ 61, 62},{ 61, 62}},
+                                        {{ 51, 52},{ 51, 52},{ 61, 62},{ 61, 62}},
+                                        {{ 51, 52},{ 51, 52},{ 61, 62},{ 61, 62}}},
+                                       {{{ 211, 212},{ 211, 212},{ 221, 222},{ 221, 222}},
+                                        {{ 211, 212},{ 211, 212},{ 221, 222},{ 221, 222}},
+                                        {{ 211, 212},{ 211, 212},{ 221, 222},{ 221, 222}},
+                                        {{ 251, 252},{ 251, 252},{ 261, 262},{ 261, 262}},
+                                        {{ 251, 252},{ 251, 252},{ 261, 262},{ 261, 262}},
+                                        {{ 251, 252},{ 251, 252},{ 261, 262},{ 261, 262}}}});
+            output = nn_upscale(input,3,2);
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) == 0);
+        }
+    }
+    WHEN("upscale in by 2 in both directions") {
+        Eigen::Tensor<float, 4, RowMajor> input(2,2,1,2);
+        input.setValues({{{{ 11, 12}},
+                          {{ 51, 52}}},
+                         {{{ 211, 212}},
+                          {{ 251, 252}}}});
+        THEN("output should be like expected and dim should fit") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(2,4,3,2);
+            Eigen::Tensor<float, 4, RowMajor> output;
+            expected_output.setValues({{{{ 11, 12},{ 11, 12},{ 11, 12}},
+                                        {{ 11, 12},{ 11, 12},{ 11, 12}},
+                                        {{ 51, 52},{ 51, 52},{ 51, 52}},
+                                        {{ 51, 52},{ 51, 52},{ 51, 52}}},
+                                       {{{ 211, 212},{ 211, 212},{ 211, 212}},
+                                        {{ 211, 212},{ 211, 212},{ 211, 212}},
+                                        {{ 251, 252},{ 251, 252},{ 251, 252}},
+                                        {{ 251, 252},{ 251, 252},{ 251, 252}}}});
+            output = nn_upscale(input,2,3);
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) == 0);
+        }
+    }
+}
+SCENARIO( "Test pool_average_backward", "[Math]") {
+    WHEN("pool_average_backward") {
+        Eigen::Tensor<float, 4, RowMajor> input(2, 2, 2, 2);
+        input.setValues({{{{11,  12},  {21,  22}},
+                          {{51,  52},  {61,  62}}},
+                         {{{211, 212}, {221, 222}},
+                          {{251, 252}, {261, 262}}}});
+        THEN("output should be like expected") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(2, 4, 4, 2);
+            Eigen::Tensor<float, 4, RowMajor> output;
+            expected_output.setValues({{{{ 11*0.25,  12*0.25},  {11*0.25,  12*0.25},  {21*0.25,  22*0.25},  {21*0.25,  22*0.25}},
+                                        {{ 11*0.25,  12*0.25},  {11*0.25,  12*0.25},  {21*0.25,  22*0.25},  {21*0.25,  22*0.25}},
+                                        {{ 51*0.25,  52*0.25},  {51*0.25,  52*0.25},  {61*0.25,  62*0.25},  {61*0.25,  62*0.25}},
+                                        {{ 51*0.25,  52*0.25},  {51*0.25,  52*0.25},  {61*0.25,  62*0.25},  {61*0.25,  62*0.25}}},
+                                       {{{211*0.25, 212*0.25}, {211*0.25, 212*0.25}, {221*0.25, 222*0.25}, {221*0.25, 222*0.25}},
+                                        {{211*0.25, 212*0.25}, {211*0.25, 212*0.25}, {221*0.25, 222*0.25}, {221*0.25, 222*0.25}},
+                                        {{251*0.25, 252*0.25}, {251*0.25, 252*0.25}, {261*0.25, 262*0.25}, {261*0.25, 262*0.25}},
+                                        {{251*0.25, 252*0.25}, {251*0.25, 252*0.25}, {261*0.25, 262*0.25}, {261*0.25, 262*0.25}}}});
+            output = pool_average_backward(input, 2, 2, 2, 2);
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) == 0);
+        }
+    }
+}
+SCENARIO( "Test softmax", "[Math]") {
+    WHEN("run softmax with simple input") {
+        Eigen::Tensor<float, 4, RowMajor> input(1, 1, 1, 5);
+        input.setValues({{{{1,2,3,4,5}}}});
+        THEN("output should be like expected") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(1, 1, 1, 5);
+            Eigen::Tensor<float, 4, RowMajor> output;
+            expected_output.setValues({{{{0.01165623, 0.03168492, 0.08612854, 0.23412166, 0.63640865}}}});
+            output = softmax(input);
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) < 0.0001);
+        }
+    }
+    WHEN("run softmax with simple input batch == 2") {
+        Eigen::Tensor<float, 4, RowMajor> input(2, 1, 1, 5);
+        input.setValues({{{{1,2,3,4,5}}},{{{5,6,7,8,9}}}});
+        THEN("output should be like expected") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(2, 1, 1, 5);
+            Eigen::Tensor<float, 4, RowMajor> output;
+            expected_output.setValues({{{{0.01165623, 0.03168492, 0.08612854, 0.23412166, 0.63640865}}},
+                                       {{{0.01165623, 0.03168492, 0.08612854, 0.23412166, 0.63640865}}}});
+            output = softmax(input);
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) < 0.0001);
+        }
+    }
+    WHEN("run softmax with height 2") {
+        Eigen::Tensor<float, 4, RowMajor> input(1, 2, 1, 5);
+        input.setValues({{{{1,2,3,4,5}},{{5,6,7,8,9}}}});
+        THEN("output should be like expected") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(1, 2, 1, 5);
+            Eigen::Tensor<float, 4, RowMajor> output;
+            expected_output.setValues({{{{0.01165623, 0.03168492, 0.08612854, 0.23412166, 0.63640865}},
+                                       {{0.01165623, 0.03168492, 0.08612854, 0.23412166, 0.63640865}}}});
+            output = softmax(input);
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) < 0.0001);
+        }
+    }
+}
+SCENARIO( "Test softmax backward", "[Math]") {
+    WHEN("run softmax with simple input") {
+        Eigen::Tensor<float, 4, RowMajor> input(1,1,1, 4), grad(1,1,1, 4), output;
+        input.setValues({{{{1,2,3,4}}}});
+        grad.setValues({{{{1,1,1,1}}}});
+        output = softmax_backward(input,grad);
+        THEN("output should be like expected") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(1, 1, 1, 4);
+            expected_output.setValues({{{{-9,-18,-27,-36}}}});
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) < 0.0001);
+        }
+    }
+    WHEN("run softmax with batch 2") {
+        Eigen::Tensor<float, 4, RowMajor> input(2,1,1, 4), grad(2,1,1, 4), output;
+        input.setValues({{{{1,2,3,4}}},{{{1,2,3,4}}}});
+        grad.setValues({{{{1,1,1,1}}},{{{1,1,1,1}}}});
+        output = softmax_backward(input,grad);
+        THEN("output should be like expected") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(2, 1, 1, 4);
+            expected_output.setValues({{{{-9,-18,-27,-36}}},{{{-9,-18,-27,-36}}}});
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) < 0.0001);
+        }
+    }
+    WHEN("run softmax with height 2") {
+        Eigen::Tensor<float, 4, RowMajor> input(1,2,1, 4), grad(1,2,1, 4), output;
+        input.setValues({{{{1,2,3,4}},{{1,2,3,4}}}});
+        grad.setValues({{{{1,1,1,1}},{{1,1,1,1}}}});
+        output = softmax_backward(input,grad);
+        THEN("output should be like expected") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(1, 2, 1, 4);
+            expected_output.setValues({{{{-9,-18,-27,-36}},{{-9,-18,-27,-36}}}});
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) < 0.0001);
+        }
+    }
+    WHEN("run softmax with width 2") {
+        Eigen::Tensor<float, 4, RowMajor> input(1,1,2, 4), grad(1,1,2, 4), output;
+        input.setValues({{{{1,2,3,4},{1,2,3,4}}}});
+        grad.setValues({{{{1,1,1,1},{1,1,1,1}}}});
+        output = softmax_backward(input,grad);
+        THEN("output should be like expected") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(1, 1, 2, 4);
+            expected_output.setValues({{{{-9,-18,-27,-36},{-9,-18,-27,-36}}}});
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) < 0.0001);
+        }
+    }
+    WHEN("run softmax with batch, heigt, width 2") {
+        Eigen::Tensor<float, 4, RowMajor> input(2,2,2, 4), grad(2,2,2, 4), output;
+        input.setValues({{{{1,2,3,4},{1,2,3,4}},{{1,2,3,4},{1,2,3,4}}},{{{1,2,3,4},{1,2,3,4}},{{1,2,3,4},{1,2,3,4}}}});
+        grad.setValues({{{{1,1,1,1},{1,1,1,1}},{{1,1,1,1},{1,1,1,1}}},{{{1,1,1,1},{1,1,1,1}},{{1,1,1,1},{1,1,1,1}}}});
+        output = softmax_backward(input,grad);
+        THEN("output should be like expected") {
+            Eigen::Tensor<float, 4, RowMajor> expected_output(2, 2, 2, 4);
+            expected_output.setValues({{{{-9,-18,-27,-36},{-9,-18,-27,-36}},{{-9,-18,-27,-36},{-9,-18,-27,-36}}},
+                                       {{{-9,-18,-27,-36},{-9,-18,-27,-36}},{{-9,-18,-27,-36},{-9,-18,-27,-36}}}});
+            Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_output - output).abs().maximum();
+            CHECK(ret_val(0) < 0.0001);
         }
     }
 }

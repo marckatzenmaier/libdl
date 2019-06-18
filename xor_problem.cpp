@@ -12,11 +12,36 @@
 
 #include <algorithm>    // std::shuffle
 #include <random>       // std::default_random_engine
-//shuffle (foo.begin(), foo.end(), std::default_random_engine(seed));
+#include "unsupported/Eigen/CXX11/Tensor"
 
+#include "libdl/math_functions.h"
+
+#include <ctime>
 
 using namespace std;
 using namespace Eigen;
+template <typename T>
+using ConstEigenArrayMap = Eigen::Map<const Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic>>;
+
+void printTensorNHWC(const Eigen::Tensor<float, 4, RowMajor>& tensor){
+    cout<<"[";
+    for(int n = 0; n<tensor.dimensions()[0]; n++){
+        cout<<"[";
+        for(int h = 0; h<tensor.dimensions()[1]; h++){
+            cout<<"[";
+            for(int w = 0; w<tensor.dimensions()[2]; w++){
+                cout<<"[ ";
+                for(int c = 0; c<tensor.dimensions()[3]; c++){
+                    cout<<tensor(n,h,w,c)<<" ";
+                }
+                cout<<"], ";
+            }
+            cout<<"]" << endl<<"  ";
+        }
+        cout<<"]"<<endl<<"  ";
+    }
+    cout<<endl<<"]"<<endl;
+}
 
 int main()
 {
@@ -24,11 +49,11 @@ int main()
     const int hidden_neurons = 10;
     const int output_neurons = 1;
     // make network
-    shared_ptr<GraphNode> input = make_shared<Variable>(Variable("input", MatrixXf(1, input_neurons)));
+    shared_ptr<GraphNode> input = make_shared<Variable>(Variable("input", Tensor4f(1,1,1, input_neurons)));
 
-    shared_ptr<GraphNode> weights1 = make_shared<Variable>(Variable("weights1", MatrixXf(input_neurons,hidden_neurons)));
-    shared_ptr<GraphNode> bias1 = make_shared<Variable>(Variable("bias1", MatrixXf(1, hidden_neurons)));
-    shared_ptr<GraphNode> weights2 = make_shared<Variable>(Variable("weights2", MatrixXf(hidden_neurons,output_neurons)));
+    shared_ptr<GraphNode> weights1 = make_shared<Variable>(Variable("weights1", Tensor4f(1,1,input_neurons,hidden_neurons)));
+    shared_ptr<GraphNode> bias1 = make_shared<Variable>(Variable("bias1", Tensor4f(1,1,1, hidden_neurons)));
+    shared_ptr<GraphNode> weights2 = make_shared<Variable>(Variable("weights2", Tensor4f(1,1,hidden_neurons,output_neurons)));
 
     shared_ptr<GraphNode> opp1 = make_shared<MatrixMultiplication>(MatrixMultiplication("MatMul_1", NodeVec{input, weights1}));
     shared_ptr<GraphNode> opp2 = make_shared<ElementwiseAdd>(ElementwiseAdd("EleAdd_1", NodeVec{opp1, bias1}));
@@ -41,58 +66,41 @@ int main()
     SGD_Optimizer optim = SGD_Optimizer(graph.getWeights(), 0.1);
 
 
-    shared_ptr<GraphNode> label = make_shared<Variable>(Variable("label", MatrixXf(1, output_neurons)));
+    shared_ptr<GraphNode> label = make_shared<Variable>(Variable("label", Tensor4f(1, 1, 1, output_neurons)));
 
     //set the input values
-    pair<MatrixXf, MatrixXf> pair0,pair1,pair2,pair3;
-    MatrixXf input_sample = MatrixXf(1, input_neurons);
-    MatrixXf output_sample = MatrixXf(1, output_neurons);
+    pair<Tensor4f, Tensor4f> pair0,pair1,pair2,pair3;
+    Tensor4f input_sample = Tensor4f(1, 1,1, input_neurons);
+    Tensor4f output_sample = Tensor4f(1,1,1, output_neurons);
 
-    /*input_sample << 0,0;
-    output_sample << 0;
+    input_sample.setValues({{{{-1,-1}}}});
+    output_sample.setValues({{{{0}}}});
     pair0.first = input_sample;
     pair0.second = output_sample;
 
-    input_sample << 0,1;
-    output_sample << 1;
+
+    input_sample.setValues({{{{-1,1}}}});
+    output_sample.setValues({{{{1}}}});
     pair1.first = input_sample;
     pair1.second = output_sample;
 
-    input_sample << 1,0;
-    output_sample << 1;
+
+    input_sample.setValues({{{{1,-1}}}});
+    output_sample.setValues({{{{1}}}});
     pair2.first = input_sample;
     pair2.second = output_sample;
 
-    input_sample << 1,1;
-    output_sample << 0;
-    pair3.first = input_sample;
-    pair3.second = output_sample;*/
 
-    input_sample << -1,-1;
-    output_sample << 0;
-    pair0.first = input_sample;
-    pair0.second = output_sample;
-
-    input_sample << -1,1;
-    output_sample << 1;
-    pair1.first = input_sample;
-    pair1.second = output_sample;
-
-    input_sample << 1,-1;
-    output_sample << 1;
-    pair2.first = input_sample;
-    pair2.second = output_sample;
-
-    input_sample << 1,1;
-    output_sample << 0;
+    input_sample.setValues({{{{1,1}}}});
+    output_sample.setValues({{{{0}}}});
     pair3.first = input_sample;
     pair3.second = output_sample;
 
 
-    vector<pair<MatrixXf, MatrixXf>> data_set = {pair0, pair1, pair2, pair3};
+    vector<pair<Tensor4f, Tensor4f>> data_set = {pair0, pair1, pair2, pair3};
     shuffle (data_set.begin(), data_set.end(), std::default_random_engine(0));
 
-    for(int i = 0; i<10000; i++){
+    for(int i = 0; i<10000 ; i++){
         float loss = 0.0;
         for(auto& d:data_set) {
             input->setData(d.first);
@@ -101,25 +109,12 @@ int main()
             loss += loss_MSE(opp5, label);
             graph.backward();
             optim.optimize();
-            //cout<<"Gradients"<<weights1->getGradient()<<"\n : "<< weights2->getGradient()<< "\n : "<<bias1->getGradient()<<endl<<"end gradients"<<endl;
             if(i==10000-1) {
                 cout << d.first << " was feed into the net and it outputs: " << opp5->getData()
                      << " and it was supposed to output: " << d.second << endl;
             }
         }
-        /*cout<<input->getName()<<endl<<"data \n"<<input->getData()<<endl<<"grad \n"<<input->getGradient()<<endl;
-        cout<<weights1->getName()<<endl<<"data \n"<<weights1->getData()<<endl<<"grad \n"<<weights1->getGradient()<<endl;
-        cout<<bias1->getName()<<endl<<"data \n"<<bias1->getData()<<endl<<"grad \n"<<bias1->getGradient()<<endl;
-        cout<<opp1->getName()<<endl<<"data \n"<<opp1->getData()<<endl<<"grad \n"<<opp1->getGradient()<<endl;
-        cout<<opp2->getName()<<endl<<"data \n"<<opp2->getData()<<endl<<"grad \n"<<opp2->getGradient()<<endl;
-        cout<<opp3->getName()<<endl<<"data \n"<<opp3->getData()<<endl<<"grad \n"<<opp3->getGradient()<<endl;
-        cout<<weights2->getName()<<endl<<"data \n"<<weights2->getData()<<endl<<"grad \n"<<weights2->getGradient()<<endl;
-        cout<<opp4->getName()<<endl<<"data \n"<<opp4->getData()<<endl<<"grad \n"<<opp4->getGradient()<<endl;
-        cout<<opp5->getName()<<endl<<"data \n"<<opp5->getData()<<endl<<"grad \n"<<opp5->getGradient()<<endl;*/
-        //cout<<opp3->getData()<<endl;
-        //cout<<weights1->getData()<<"\n : "<< weights2->getData()<< "\n : "<<bias1->getData()<<endl;
         shuffle (data_set.begin(), data_set.end(), std::default_random_engine(0));
         cout<<"loss in this epoch: "<< to_string(loss/data_set.size())<<endl;
-        //cout<<endl<<endl;
     }
 }

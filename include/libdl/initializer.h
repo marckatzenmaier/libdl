@@ -10,7 +10,8 @@
 #include "libdl/opperation.h"
 #include <libdl/graph.h>
 #include <libdl/Optimizer.h>
-void init_random(std::shared_ptr<GraphNode> variable);
+#include "unsupported/Eigen/CXX11/Tensor"
+void init_random(const std::shared_ptr<GraphNode>& variable);
 
 void init_weights_random(const std::vector<std::shared_ptr<Variable>> &variable_vec);
 #endif //TEST_INITIALIZER_H

@@ -12,7 +12,7 @@
 
 class Variable : public GraphNode{
 public:
-    Variable(const std::string &name, const Eigen::MatrixXf &data);
+    Variable(const std::string &name, const Tensor4f &data);
 
     std::string getType() override {return "Variable";}
     void forward() override;

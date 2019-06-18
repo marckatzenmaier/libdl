@@ -17,8 +17,8 @@ public:
     void backward() override{};
 
     std::string getType() override {return "Placeholder";}
-private:
-    Tensor innerState;
+
+    Placeholder(const std::string &name, const Tensor4f &data);
 };
 
 #endif //TEST_PLACEHOLDER_H

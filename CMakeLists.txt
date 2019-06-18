@@ -3,6 +3,10 @@ project(test VERSION 0.1
         DESCRIPTION "testing CI setup"
         LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(MY_LIB_NAME my_dllib)
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
@@ -19,32 +23,33 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
     endif()
 endif()
 
-#if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/repo/CMakeLists.txt")
-#    message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
-#endif()
+#precompiled header stuff
+set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
+include(cotire.cmake)
+
 add_subdirectory(docs)
 
-add_subdirectory(extern/Catch2)
+set(CATCH_INCLUDE_DIRS extern/Catch2/single_include)
 include_directories(${CATCH_INCLUDE_DIRS})
 
-add_subdirectory(extern/eigen-git-mirror)
+set(EIGEN3_INCLUDE_DIR extern/eigen-git-mirror)
 include_directories(${EIGEN3_INCLUDE_DIR})
-message(STATUS "##############################################${EIGEN3_INCLUDE_DIR}aaaaaaaaaa###############")
+
 add_subdirectory(extern/pybind11)
-add_subdirectory(extern/spdlog)
+#add_subdirectory(extern/spdlog)
 
 #https://github.com/StableCoder/cmake-scripts
 include(code-coverage.cmake)
 include(sanitizers.cmake)
 
 #add_subdirectory(src)
-set(SRC_FILES src/test.cpp src/graph_node.cpp include/libdl/opperation_node.h include/libdl/Constant.h include/libdl/Variable.h include/libdl/opperation.h include/libdl/placeholder.h include/libdl/graph.h src/Constant.cpp src/Variable.cpp src/opperation.cpp src/placeholder.cpp src/graph.cpp include/libdl/Optimizer.h src/Optimizer.cpp include/libdl/loss.h src/loss.cpp include/libdl/initializer.h src/initializer.cpp src/math_functions.cpp include/libdl/math_functions.h)
+set(SRC_FILES src/test.cpp src/graph_node.cpp include/libdl/opperation_node.h include/libdl/Constant.h include/libdl/Variable.h include/libdl/opperation.h include/libdl/placeholder.h include/libdl/graph.h src/Constant.cpp src/Variable.cpp src/opperation.cpp src/placeholder.cpp src/graph.cpp include/libdl/Optimizer.h src/Optimizer.cpp include/libdl/loss.h src/loss.cpp include/libdl/initializer.h src/initializer.cpp src/math_functions.cpp include/libdl/math_functions.h include/libdl/helper_functions.h src/helper_functions.cpp)
 
 
 add_library(${MY_LIB_NAME} SHARED ${SRC_FILES})
-target_link_libraries(${MY_LIB_NAME} PRIVATE eigen)
 target_include_directories(${MY_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_target_properties(${MY_LIB_NAME} PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+cotire(${MY_LIB_NAME})
 
 
 find_program (CLANG_TIDY_EXE NAMES "clang-tidy")
@@ -61,23 +66,13 @@ set_target_properties(${MY_LIB_NAME} PROPERTIES CXX_CLANG_TIDY "${CMAKE_CXX_CLAN
 
 set(TEST_SRC_FILES  tests/mainTest.cpp tests/trytest.cpp tests/test_graph_node.cpp tests/test_opperation_node.cpp tests/test_variable.cpp tests/test_constant.cpp tests/test_opperation.cpp tests/test_placeholder.cpp tests/test_graph.cpp tests/test_Optimizer.cpp tests/test_loss.cpp tests/test_initializer.cpp tests/test_math_functions.cpp)
 add_executable(my_tests ${TEST_SRC_FILES})
-target_link_libraries(my_tests PRIVATE Catch2)
-target_link_libraries(my_tests PRIVATE eigen)
-
 target_link_libraries(my_tests PRIVATE ${MY_LIB_NAME})
-
-set(TARGET_NAME my_tests)
-
+cotire(my_tests)
 target_code_coverage(my_tests)
-
-if( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
-    #add_custom_target(${TARGET_NAME}-run ALL COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME})
-endif()
-
-if( ${CMAKE_BUILD_TYPE} STREQUAL "Release" )
-endif()
 
 
 add_executable(XOR xor_problem.cpp)
-target_link_libraries(XOR PRIVATE eigen)
 target_link_libraries(XOR PRIVATE ${MY_LIB_NAME})
+
+add_executable(MNIST mnist_problem.cpp)
+target_link_libraries(MNIST PRIVATE ${MY_LIB_NAME})

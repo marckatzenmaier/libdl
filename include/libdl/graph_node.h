@@ -10,12 +10,16 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include "unsupported/Eigen/CXX11/Tensor"
 //using namespace std;
 //using namespace Eigen;
+typedef Eigen::Tensor<float, 4, Eigen::RowMajor> Tensor4f;
 
 typedef struct Tensor{
-    Eigen::MatrixXf data;
-    Eigen::MatrixXf gradient;
+    Tensor4f data;
+    Tensor4f gradient;
+    //Eigen::MatrixXf data;
+    //Eigen::MatrixXf gradient;
 }Tensor;
 typedef std::shared_ptr<Tensor> TensorPtr;
 
@@ -23,14 +27,18 @@ class GraphNode{
     static int node_count;
 protected:
     std::string name;
-    Eigen::MatrixXf data;
-    Eigen::MatrixXf gradient;
+    Tensor4f data;
+    Tensor4f gradient;
+    //Eigen::MatrixXf data;
+    //Eigen::MatrixXf gradient;
 public:
-    void setData(const Eigen::MatrixXf &data);
-    const Eigen::MatrixXf &getGradient() const;
-    void setGradient(const Eigen::MatrixXf &gradient);
-    const Eigen::MatrixXf &getData() const;
-    GraphNode(const std::string& name, const Eigen::MatrixXf& data = Eigen::MatrixXf());
+    void setData(const Tensor4f &data);
+    const Tensor4f &getGradient() const;
+    void setGradient(const Tensor4f &gradient);
+    void clearGradient();
+    void addGradient(const Tensor4f &gradient);
+    const Tensor4f &getData() const;
+    GraphNode(const std::string& name);
     const std::string &getName() const;
     virtual void forward(){}
     virtual void backward(){}

@@ -7,8 +7,10 @@
 using namespace std;
 using namespace Eigen;
 
-Variable::Variable(const std::string& name, const Eigen::MatrixXf &data)
-        : GraphNode("Var_" + name, data) {}
+Variable::Variable(const std::string& name, const Tensor4f &data)
+        : GraphNode(name) {
+    setData(data);
+}
 
 
 void Variable::forward(){

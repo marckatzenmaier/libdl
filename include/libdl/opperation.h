@@ -47,6 +47,33 @@ public:
     ReLU(const std::string &name, const NodeVec &inputs);
     void forward() override;
     void backward() override;
+private:
+    Tensor4f zeros;
+    Eigen::array<int, 4> bcast;
 };
+class Conv2d : public  Opperation{
+public:
+    Conv2d(const std::string &name, const NodeVec &inputs);
+    void forward() override;
+    void backward() override;
 
+};
+class Pool_average : public  Opperation{
+public:
+    Pool_average(const std::string &name, const NodeVec &inputs);
+    void forward() override;
+    void backward() override;
+};
+class Softmax : public  Opperation{
+public:
+    Softmax(const std::string &name, const NodeVec &inputs);
+    void forward() override;
+    void backward() override;
+};
+class TanH : public  Opperation{
+public:
+    TanH(const std::string &name, const NodeVec &inputs);
+    void forward() override;
+    void backward() override;
+};
 #endif //TEST_OPPERATION_H

@@ -11,10 +11,7 @@
 #include "libdl/Variable.h"
 #include "libdl/opperation.h"
 
-float loss_MSE(const std::shared_ptr<GraphNode>& output, const std::shared_ptr<GraphNode>& label){
-    float n = output->getData().rows() * output->getData().cols();
-    output->setGradient((output->getData()-label->getData())*2.f/n);
-    return (output->getData()-label->getData()).array().square().mean();
-}
+float loss_MSE(const std::shared_ptr<GraphNode>& output, const std::shared_ptr<GraphNode>& label);
+float loss_Crossentropy(const std::shared_ptr<GraphNode>& output, const std::shared_ptr<GraphNode>& label);
 
 #endif //TEST_LOSS_H

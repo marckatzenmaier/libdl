@@ -15,24 +15,28 @@ SCENARIO( "Test Variable", "[Node]"){
     GIVEN("Variable Node, data, gradient"){
 
         string name = "test_var";
-        MatrixXf data = Eigen::MatrixXf(2,3);
-        data << 1, 2, 3, 4, 5, 6;
-        MatrixXf grad = Eigen::MatrixXf(2,3);
-        grad << 7, 8, 9, 10, 11, 12;
+        Tensor4f data = Tensor4f(1,2,3,1);
+        data.setValues({{{{1},{2},{3}},{{4},{5},{6}}}});
+        Tensor4f grad = Tensor4f(1,2,3,1);
+        grad.setValues({{{{7},{8},{9}},{{10},{11},{12}}}});// 7, 8, 9, 10, 11, 12;
         Variable var = Variable(name, data);
         var.setGradient(grad);
         WHEN("Forward called"){
             var.forward();
             THEN(" data and gradient doesn't change"){
-                REQUIRE((var.getData() - data).norm() == 0);
-                REQUIRE((var.getGradient() - grad).norm() == 0);
+                Eigen::Tensor<float, 0, RowMajor> val = (var.getData() - data).abs().maximum();
+                REQUIRE(val(0) == 0);
+                val = (var.getGradient() - grad).abs().maximum();
+                REQUIRE(val(0) == 0);
             }
         }
         WHEN("Backward called"){
             var.backward();
             THEN("data and gradient doesn't change"){
-                REQUIRE((var.getData() - data).norm() == 0);
-                REQUIRE((var.getGradient() - grad).norm() == 0);
+                Eigen::Tensor<float, 0, RowMajor> val = (var.getData() - data).abs().maximum();
+                REQUIRE(val(0) == 0);
+                val = (var.getGradient() - grad).abs().maximum();
+                REQUIRE(val(0) == 0);
             }
         }
 

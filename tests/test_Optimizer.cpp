@@ -11,7 +11,7 @@
 
 using namespace std;
 using namespace Eigen;
-SCENARIO( "Test Optimizer", "[Node]"){
+/*SCENARIO( "Test Optimizer", "[Node]"){
     GIVEN("Basic Nodes which forms a simple matrix multiplication graph"){
         string name = "test_opp";
         MatrixXf data1 = Eigen::MatrixXf(2,3);
@@ -43,4 +43,4 @@ SCENARIO( "Test Optimizer", "[Node]"){
             }
         }
     }
-}
+}*/

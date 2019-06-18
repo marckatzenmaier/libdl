@@ -14,8 +14,8 @@
 #include "libdl/initializer.h"
 #include "libdl/loss.h"
 
-std::shared_ptr<GraphNode> make_Variable(const std::string& name, int rows, int cols){
-    return std::make_shared<Variable>(Variable(name, Eigen::MatrixXf(rows, cols)));
+std::shared_ptr<GraphNode> make_Variable(const std::string& name, int rows, int cols){//todo fix this for tensor
+    return std::make_shared<Variable>(Variable(name, Tensor4f(1, rows, cols, 1)));
 }
 
 std::shared_ptr<GraphNode> make_MatrixMultiplication(const std::string& name, const std::shared_ptr<GraphNode>& mat_a, const std::shared_ptr<GraphNode>& mat_b){

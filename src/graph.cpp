@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stack>
 #include <queue>
+#include <map>
 #include <libdl/graph.h>
 
 #include "libdl/graph_node.h"
@@ -24,19 +25,30 @@ struct search_graph_node{
     explicit search_graph_node(const shared_ptr<GraphNode>& node){search_graph_node::node=node;}
 };
 
+map<std::string, std::shared_ptr<Placeholder>> map_name_placeholder(std::vector<std::shared_ptr<Placeholder>> &placeholders){
+    map<std::string, std::shared_ptr<Placeholder>> my_map;
+    for(auto& v:placeholders){
+        my_map.insert(std::pair<std::string, std::shared_ptr<Placeholder>>(v->getName(), v));
+    }
+    return my_map;
+}
+
 Graph::Graph(const shared_ptr<GraphNode>& endpoint) {
     Graph::endpoint = endpoint;
     calc_forward_order();
     calc_backward_order();
+    placeholder_map = map_name_placeholder(placeholder_vec);
 
 }
 
-MatrixXf Graph::forward() {
+Tensor4f Graph::forward() {
     //for_each( in forward order){
     // ever node call forward
     //}
     for(auto& i:forward_order){
         i->forward();
+        //cout<<i->getName()<<endl;
+        //cout<<i->getData()<<endl;
     }
     return endpoint->getData();
 }
@@ -51,8 +63,10 @@ void Graph::backward() {
 
 }
 
-void Graph::setPlaceholder() {
-    //smart way to set placeholder
+void Graph::setPlaceholder(std::vector<std::pair<std::string, Tensor4f>> feed_dict) {
+    for(auto & pair:feed_dict){
+        placeholder_map[pair.first]->setData(pair.second);
+    }
 
 }
 
@@ -95,11 +109,11 @@ void Graph::calc_forward_order() {
             node_stack.pop();
         }
     }
-    cout<<"names of forward order"<<endl;
+    /*cout<<"names of forward order"<<endl;
     for(auto& i:forward_order){
         cout<<i->getName()<<" ";
-    }
-    cout<<endl;/*
+    }*/
+    /*cout<<endl;
     cout<<"names of variables"<<endl;
     for(auto& i:variable_vec){
         cout<<i->getName()<<" ";
@@ -113,9 +127,9 @@ void Graph::calc_forward_order() {
 void Graph::calc_backward_order() {
     //populate backward order with breath first search use std::queue
     backward_order = vector<shared_ptr<GraphNode> >(forward_order.rbegin(), forward_order.rend());
-    cout<<"names of backward order"<<endl;
+    /*cout<<"names of backward order"<<endl;
     for(auto& i:backward_order){
         cout<<i->getName()<<" ";
     }
-    cout<<endl;
+    cout<<endl;*/
 }

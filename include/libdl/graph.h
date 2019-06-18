@@ -7,6 +7,7 @@
 #include "Eigen/Core"
 #include <vector>
 #include <string>
+#include <map>
 #include <memory>
 #include "libdl/graph_node.h"
 #include "libdl/opperation.h"
@@ -26,11 +27,13 @@ private:
     std::vector<std::shared_ptr<Opperation> > opperation_vec;
     std::vector<std::shared_ptr<Variable> > variable_vec;
     std::vector<std::shared_ptr<Placeholder> > placeholder_vec;
+    std::map<std::string, std::shared_ptr<Placeholder>> placeholder_map;
 public:
+    std::shared_ptr<GraphNode> getEndpoint(){return endpoint;}
     Graph(const std::shared_ptr<GraphNode>&  endpoint);
-    Eigen::MatrixXf forward();
+    Tensor4f forward();
     void backward();
-    void setPlaceholder();
+    void setPlaceholder(std::vector<std::pair<std::string, Tensor4f>> feed_dict);
     std::vector<std::shared_ptr<Variable> > getWeights();
 };
 
