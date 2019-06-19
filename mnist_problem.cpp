@@ -42,7 +42,7 @@ class Dataset{
 public:
     void shuffle(){std::random_shuffle(index_vec.begin(), index_vec.end());/* for(auto i:index_vec){cout<<i<<" ";}cout<<endl;*/}
     virtual pair<Tensor4f, Tensor4f> operator[](int index)=0;
-    int size(){return data_vec.size()/batch;}//automatic drop last batch
+    int size(){return index_vec.size()/batch;}//automatic drop last batch
 protected:
     vector<data> data_vec;
     vector<label> label_vec;
@@ -52,11 +52,16 @@ protected:
 
 class MnistDataset : public Dataset<vector<float>,float>{
 public:
-    MnistDataset(const string& filepath_data, const string& filepath_label, int batch){
+    MnistDataset(const string& filepath_data, const string& filepath_label, int batch, int max_size=-1){
         read_Mnist(filepath_data, data_vec);
         read_Mnist_Label(filepath_label,label_vec);
-        index_vec.resize(1000/*data_vec.size()*/);
-        for(int i = 0; i<1000/*data_vec.size()*/;i++){index_vec[i]=i;}//todo hack
+        if(max_size <= 0) {
+            index_vec.resize(data_vec.size());
+        }
+        else{
+            index_vec.resize(max_size);
+        }
+        for(int i = 0; i<index_vec.size();i++){index_vec[i]=i;}
         this->batch = batch;
     }
     pair<Tensor4f, Tensor4f> operator[](int index) override {
@@ -73,8 +78,6 @@ public:
         }
         Tensor4f devide(batch,32,32,1);
         devide.setConstant(255);
-        //Tensor4f subtract(batch,32,32,1);
-        //subtract.setConstant(0.5);
         Tensor4f temp = ( copy_mnist_to_tensor(batched_data).pad(paddings) / devide );
         pair<Tensor4f, Tensor4f> pair = make_pair(temp, copy_mnist_label_to_tensor(batched_label));
         return pair;
@@ -116,17 +119,48 @@ Graph make_LeNet(int b){
     shared_ptr<GraphNode> fc2_act = make_shared<Softmax>(Softmax("fc1_act", NodeVec{fc2}));
     return Graph(fc2_act);
 }
+Tensor4f argmax(Tensor4f &input){
+    int dim_0 = input.dimension(0)*input.dimension(1)*input.dimension(2);
+    int dim_1 = input.dimension(3);
+    //std::array<int,2> reshape = {dim_0, dim_1};
+    Eigen::DSizes<Eigen::internal::traits<Eigen::Tensor<float, 4, Eigen::RowMajor>>::Index, 2> reshape;
+    reshape[0] = dim_0;
+    reshape[1] = dim_1;
+    Eigen::Tensor<float, 2, Eigen::RowMajor> reshaped_input = input.reshape(reshape);
+    Eigen::Tensor<float, 1, Eigen::RowMajor> arg_max(dim_0);
+    for(int i = 0; i<dim_0; i++){
+        float max=reshaped_input(i,0);
+        int idx = 0;
+        for(int j = 1; j<dim_1; j++){
+            if(max<reshaped_input(i,j)){
+                max =reshaped_input(i,j);
+                idx = j;
+            }
+        }
+        arg_max(i)=idx;
+    }
+    //std::array<int,4> reshape_out = {(int)input.dimension(0),(int)input.dimension(1),(int)input.dimension(2),1};
 
+    Eigen::DSizes<Eigen::internal::traits<Eigen::Tensor<float, 4, Eigen::RowMajor>>::Index, 4> reshape_out;
+    reshape_out[0] = input.dimension(0);
+    reshape_out[1] = input.dimension(1);
+    reshape_out[2] = input.dimension(2);
+    reshape_out[3] = 1;
+    Tensor4f output = arg_max.reshape(reshape_out);
+    return output;
+}
+float eval_accuracy(const Tensor4f &output, const Tensor4f &label){
+    Tensor4f temp = (output == label).cast<float>();
+    Eigen::Tensor<float, 0, Eigen::RowMajor> equals = temp.mean();
+    return equals(0);
+}
 int main(){
 
     string filenameIMG = "../extern/datasets/mnist/train-images-idx3-ubyte";
     string filenameLabels = "../extern/datasets/mnist/train-labels-idx1-ubyte";
-    /*std::vector<std::vector<float> > imgs;
-    std::vector<float> labels;
-    read_Mnist(filenameIMG, imgs);
-    Tensor4f inp = copy_mnist_to_tensor(imgs);
-    read_Mnist_Label(filenameLabels,labels);
-    Tensor4f lab = copy_mnist_label_to_tensor(labels);*/
+
+    string filenameEvalImgs = "../extern/datasets/mnist/t10k-images-idx3-ubyte";
+    string filenameEvalLabels = "../extern/datasets/mnist/t10k-labels-idx1-ubyte";
     array<int, 4> input_offset = {0,0,0,0};
     array<int, 4> input_extend = {1,28,28,1};
     array<int, 4> label_offset = {0,0,0,0};
@@ -139,45 +173,48 @@ int main(){
     paddings[3] = make_pair(0, 0);
 
     int batch = 10;
-    MnistDataset dataset = MnistDataset(filenameIMG,filenameLabels,batch);
+    MnistDataset dataset = MnistDataset(filenameIMG,filenameLabels,batch, 1000);
+    MnistDataset eval_set =MnistDataset(filenameEvalImgs, filenameEvalLabels,batch);
     Graph leNet = make_LeNet(batch);
     init_weights_random(leNet.getWeights());
-    /*for(const auto& a : leNet.getWeights()){
-        cout<<a->getData()<<endl;
-    }*/
     SGD_Optimizer optim = SGD_Optimizer(leNet.getWeights(), 0.01);
-    //Tensor4f input = inp.slice(input_offset, input_extend);//.eval().pad(paddings);//(batch,32,32,1);
-    //Tensor4f input2 = input.pad(paddings);
 
-    pair<Tensor4f, Tensor4f> sample = dataset[0];
-    leNet.setPlaceholder(vector<std::pair<std::string, Tensor4f>>({make_pair("input", sample.first)}));
-    //Tensor4f label_t = lab.slice(label_offset, label_extend);//(batch,1,1,10);
+    pair<Tensor4f, Tensor4f> sample;
     shared_ptr<GraphNode> label = make_shared<Placeholder>(Placeholder("label", sample.second));
-    //cout<<sample.first<<endl;
-    label->setData(sample.second);
-    cout<<sample.second<<endl;
-
-    int batches =100;
-    for(int i = 0; i<10; i++) {
+    int epochs = 10;
+    for(int i = 0; i<epochs; i++) {
         float loss=0.0;
-        for(int a = 0; a<batches;a++) {
+        for(int a = 0; a<dataset.size();a++) {
             sample = dataset[a];
             leNet.setPlaceholder(vector<std::pair<std::string, Tensor4f>>({make_pair("input", sample.first)}));
             label->setData(sample.second);
 
             leNet.forward();
-            //cout<<leNet.getEndpoint()->getData()<<endl;
             loss += loss_Crossentropy(leNet.getEndpoint(), label);
             leNet.backward();
 
-            //cout<<leNet.getEndpoint()->getGradient()<<endl;
             optim.optimize();
-            //cout<<"label"<<sample.second<<endl;
-            //cout<<"data "<<leNet.getEndpoint()->getData()<<endl;
         }
-        //dataset.shuffle();
-        cout<<loss/batches<<endl;
+        dataset.shuffle();
+        cout <<"train loss of epoch " << i<<" is "<<loss/dataset.size()<<endl;
+        string savePath = "./lenet_"+to_string(i)+".ckpt";
+        vector<shared_ptr<Variable> > weights = leNet.getWeights();
+        save_weights(savePath, weights);
+        float acc = 0, val_loss= 0;
+        for(int a = 0; a<eval_set.size();a++){
+            sample = eval_set[a];
+            leNet.setPlaceholder(vector<std::pair<std::string, Tensor4f>>({make_pair("input", sample.first)}));
+
+            leNet.forward();
+
+            label->setData(sample.second);
+            val_loss += loss_Crossentropy(leNet.getEndpoint(), label);
+
+            Tensor4f output = leNet.getEndpoint()->getData();
+            acc += eval_accuracy(argmax(output), argmax(sample.second));
+
+        }
+        cout <<"accuracy of epoch " << i<<" is "<<acc/eval_set.size()<<endl;
+        cout <<"val loss of epoch " << i<<" is "<<val_loss/eval_set.size()<<endl<<endl;
     }
-    cout<<"label"<<sample.second<<endl;
-    cout<<leNet.getEndpoint()->getData()<<endl;
 }

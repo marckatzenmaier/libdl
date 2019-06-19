@@ -156,7 +156,12 @@ Tensor4f copy_mnist_to_tensor(std::vector<std::vector<float> > imgs){
     for(int i = 0; i<num_sample;i++){
         memcpy(data.data()+i*sample_size, imgs[i].data(), sizeof(float)*sample_size);
     }
-    Tensor4f data1 = data.reshape(array<int,4>({num_sample,28,28,1}));
+    Eigen::DSizes<Eigen::internal::traits<Eigen::Tensor<float, 4, Eigen::RowMajor>>::Index, 4> reshape;
+    reshape[0] = num_sample;
+    reshape[1] = 28;
+    reshape[2] = 28;
+    reshape[3] = 1;
+    Tensor4f data1 = data.reshape(reshape);
     return data1;
 
 }

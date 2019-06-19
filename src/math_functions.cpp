@@ -303,9 +303,10 @@ Eigen::Tensor<float, 4, Eigen::RowMajor> softmax_backward(const Eigen::Tensor<fl
     Eigen::Tensor<float, 3, Eigen::RowMajor> dot = input.reshape(input_dot_1).broadcast(input_dot_b1).eval() *
             input.reshape(input_dot_2).broadcast(input_dot_b2).eval();
 
-    std::array<int,2> reshape_input = {NHW,C};
-    Eigen::Tensor<float, 4, Eigen::RowMajor> temp_input =input;
-    Eigen::Tensor<float, 2, Eigen::RowMajor> reshaped_input = temp_input.reshape(reshape_input);
+    Eigen::DSizes<Eigen::internal::traits<Eigen::Tensor<float, 4, Eigen::RowMajor>>::Index, 2> reshape_input;
+    reshape_input[0] = NHW;
+    reshape_input[1] = C;
+    Eigen::Tensor<float, 2, Eigen::RowMajor> reshaped_input = input.reshape(reshape_input);
 
     Eigen::Tensor<float, 3, Eigen::RowMajor> jacobi = diagonalize(reshaped_input) - dot;
 
