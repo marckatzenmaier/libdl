@@ -139,7 +139,6 @@ Tensor4f argmax(Tensor4f &input){
         }
         arg_max(i)=idx;
     }
-    //std::array<int,4> reshape_out = {(int)input.dimension(0),(int)input.dimension(1),(int)input.dimension(2),1};
 
     Eigen::DSizes<Eigen::internal::traits<Eigen::Tensor<float, 4, Eigen::RowMajor>>::Index, 4> reshape_out;
     reshape_out[0] = input.dimension(0);
