@@ -35,14 +35,19 @@ include_directories(${CATCH_INCLUDE_DIRS})
 set(EIGEN3_INCLUDE_DIR extern/eigen-git-mirror)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
-set(PYBIND11_CPP_STANDARD -std=c++1z)
-add_subdirectory(extern/pybind11)
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    target_compile_options(pybind11 INTERFACE -fsized-deallocation)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")  # special case for clang due to pybind11
+    SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -fsized-deallocation")
 endif()
+
+set(PYBIND11_CPP_STANDARD -std=c++1z)
+
+
+add_subdirectory(extern/pybind11)
+
 
 #https://github.com/StableCoder/cmake-scripts
 include(code-coverage.cmake)
+
 
 #add_subdirectory(src)
 set(SRC_FILES src/test.cpp src/graph_node.cpp include/libdl/Variable.h include/libdl/opperation.h include/libdl/placeholder.h include/libdl/graph.h src/Variable.cpp src/opperation.cpp src/placeholder.cpp src/graph.cpp include/libdl/Optimizer.h src/Optimizer.cpp include/libdl/loss.h src/loss.cpp include/libdl/initializer.h src/initializer.cpp src/math_functions.cpp include/libdl/math_functions.h include/libdl/helper_functions.h src/helper_functions.cpp)
@@ -52,18 +57,6 @@ add_library(${MY_LIB_NAME} SHARED ${SRC_FILES})
 target_include_directories(${MY_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_target_properties(${MY_LIB_NAME} PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 #cotire(${MY_LIB_NAME})
-
-
-find_program (CLANG_TIDY_EXE NAMES "clang-tidy")
-if(CLANG_TIDY_EXE)
-    message(STATUS "clang-tidy found!")
-    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-format-style=file;-header-filter='${CMAKE_SOURCE_DIR}/*'" CACHE STRING "" FORCE)
-else()
-    message(STATUS "clang-tidy NOT found!")
-    set(CMAKE_CXX_CLANG_TIDY "" CACHE STRING "" FORCE) # clear it
-endif()
-
-set_target_properties(${MY_LIB_NAME} PROPERTIES CXX_CLANG_TIDY "${CMAKE_CXX_CLANG_TIDY}")
 
 
 set(TEST_SRC_FILES  tests/mainTest.cpp tests/trytest.cpp tests/test_graph_node.cpp tests/test_variable.cpp tests/test_opperation.cpp tests/test_placeholder.cpp tests/test_graph.cpp tests/test_Optimizer.cpp tests/test_loss.cpp tests/test_initializer.cpp tests/test_math_functions.cpp)
@@ -76,16 +69,13 @@ target_code_coverage(my_tests)
 add_executable(XOR xor_problem.cpp)
 target_link_libraries(XOR PRIVATE ${MY_LIB_NAME})
 
+
 add_executable(MNIST mnist_problem.cpp)
 target_link_libraries(MNIST PRIVATE ${MY_LIB_NAME})
 
 
-#add_executable(try_stuff profile_and_try_stuff_main.cpp)
-#target_link_libraries(try_stuff PRIVATE ${MY_LIB_NAME})
-
-
 set(MY_PY_LIB_NAME ${MY_LIB_NAME}_py)
-pybind11_add_module(${MY_PY_LIB_NAME} src/py_binding.cpp)
+pybind11_add_module(${MY_PY_LIB_NAME} SHARED src/py_binding.cpp)
 target_include_directories(${MY_PY_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(${MY_PY_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/extern/pybind/include)
 target_link_libraries(${MY_PY_LIB_NAME} PUBLIC ${MY_LIB_NAME})

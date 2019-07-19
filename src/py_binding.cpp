@@ -1,12 +1,11 @@
 //
 // Created by marc on 26.06.19.
 //
-#include <iostream>
-#include <unsupported/Eigen/CXX11/Tensor>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 #include <pybind11/eigen.h>
+#include <unsupported/Eigen/CXX11/Tensor>
 #include "libdl/graph.h"
 #include "libdl/helper_functions.h"
 #include "libdl/loss.h"
@@ -14,6 +13,7 @@
 #include "libdl/graph_node.h"
 #include "libdl/Variable.h"
 #include "libdl/initializer.h"
+#include <iostream>
 
 namespace py = pybind11;
 
