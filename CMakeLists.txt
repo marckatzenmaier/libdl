@@ -37,6 +37,9 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 
 set(PYBIND11_CPP_STANDARD -std=c++1z)
 add_subdirectory(extern/pybind11)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(pybind11 INTERFACE -fsized-deallocation)
+endif()
 
 #https://github.com/StableCoder/cmake-scripts
 include(code-coverage.cmake)
