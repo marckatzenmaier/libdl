@@ -77,8 +77,8 @@ add_executable(MNIST mnist_problem.cpp)
 target_link_libraries(MNIST PRIVATE ${MY_LIB_NAME})
 
 
-add_executable(try_stuff profile_and_try_stuff_main.cpp)
-target_link_libraries(try_stuff PRIVATE ${MY_LIB_NAME})
+#add_executable(try_stuff profile_and_try_stuff_main.cpp)
+#target_link_libraries(try_stuff PRIVATE ${MY_LIB_NAME})
 
 
 set(MY_PY_LIB_NAME ${MY_LIB_NAME}_py)
