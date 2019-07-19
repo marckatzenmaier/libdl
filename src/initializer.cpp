@@ -13,15 +13,10 @@ using namespace std;
 using namespace Eigen;
 
 void init_random(const shared_ptr<GraphNode>& variable){//xavier
-
     Tensor4f random(variable->getData().dimension(0),variable->getData().dimension(1),variable->getData().dimension(2),variable->getData().dimension(3));
     random.setRandom<Eigen::internal::NormalRandomGenerator<float>>();
     random = random / sqrt((float)(random.size()/variable->getData().dimension(3)));//xavier
-    //cout<<variable->getName()<<endl;
-    //cout<<(random.size())<<" "<<(random.size()/variable->getData().dimension(3))<<" "<<(variable->getData().dimension(3))<<" "<<(variable->getData().dimension(0)*variable->getData().dimension(1)*variable->getData().dimension(2))<<endl;
     variable->setData(random);
-
-
 }
 
 void init_weights_random(const vector<shared_ptr<Variable>> &variable_vec){

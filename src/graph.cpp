@@ -42,25 +42,23 @@ Graph::Graph(const shared_ptr<GraphNode>& endpoint) {
 }
 
 Tensor4f Graph::forward() {
-    //for_each( in forward order){
-    // ever node call forward
-    //}
     for(auto& i:forward_order){
         i->forward();
-        //cout<<i->getName()<<endl;
-        //cout<<i->getData()<<endl;
     }
     return endpoint->getData();
 }
 
 void Graph::backward() {
-    //for_each( in backward order){
-    // ever node call backward
-    //}
     for(auto& i:backward_order){
         i->backward();
     }
 
+}
+
+void Graph::clearGradients(){
+    for(auto& i:variable_vec){
+        i->clearGradient();
+    }
 }
 
 void Graph::setPlaceholder(std::vector<std::pair<std::string, Tensor4f>> feed_dict) {

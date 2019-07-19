@@ -176,9 +176,6 @@ void Softmax::forward(){
 
 void Softmax::backward() {
     input_vec[0]->setGradient(softmax_backward(data, gradient));
-    /*cout<<"data  "<<data<<endl;
-    cout<<"top   "<<gradient<<endl;
-    cout<<"bottom"<<input_vec[0]->getGradient()<<endl;*/
 }
 
 TanH::TanH(const string &name, const NodeVec &inputs) : Opperation(name, inputs) {

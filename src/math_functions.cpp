@@ -20,7 +20,6 @@ Eigen::Tensor<float, 4, RowMajor> conv2d_NHWC(const Eigen::Tensor<float, 4, RowM
     int N = input.dimension(0);
     int H = input.dimension(1);
     int W = input.dimension(2);
-    //int C=input.dimension(3);
     int kernel_h = kernel.dimension(0);
     int kernel_w = kernel.dimension(1);
     int kernel_ci=kernel.dimension(2);
@@ -75,7 +74,6 @@ Eigen::Tensor<float, 4, Eigen::RowMajor> conv2d_NHWC_backprop_kernel(const Eigen
     int H = input.dimension(1);
     int W = input.dimension(2);
     int C = input.dimension(3);
-    //int grad_n=kernel.dimension(0);
     int grad_h = kernel.dimension(1);
     int grad_w = kernel.dimension(2);
     int grad_c=kernel.dimension(3);
@@ -146,11 +144,11 @@ Eigen::Tensor<float, 4, Eigen::RowMajor> conv2d_NHWC_backprop_input(const Eigen:
 
     Eigen::DSizes<TensorIndex, 2> pre_contract_dims;
     pre_contract_dims[0] = N*H*W;
-    pre_contract_dims[1] = kernel_h * kernel_w * kernel_co ;// * kernel_ci;
+    pre_contract_dims[1] = kernel_h * kernel_w * kernel_co ;
 
     Eigen::DSizes<TensorIndex, 2> kernel_dims;
     kernel_dims[0] = pre_contract_dims[1];
-    kernel_dims[1] = /*kernel_co* */ kernel_ci;
+    kernel_dims[1] = kernel_ci;
     Eigen::array<pair<int, int>, 4> paddings;
     paddings[0] = make_pair(0,0);
     paddings[1] = make_pair(kernel_h-1, kernel_h-1);//left, right
@@ -212,7 +210,6 @@ Eigen::Tensor<float, 4, Eigen::RowMajor> pool_average(const Eigen::Tensor<float,
 
     std::array<int,5> swap = {0,1,4,2,3};//maybe useless since mean_dim applyable
     std::array<int,1> mean_dim = {1};
-    Eigen::Tensor<float, 2, RowMajor> output2;
 
     output = input
             .extract_image_patches(
@@ -234,7 +231,7 @@ Eigen::Tensor<float, 4, Eigen::RowMajor> pool_average(const Eigen::Tensor<float,
     return output;
 }
 
-Eigen::Tensor<float, 4, Eigen::RowMajor> nn_upscale(const Eigen::Tensor<float, 4, Eigen::RowMajor> &input, int height, int width){
+Eigen::Tensor<float, 4, Eigen::RowMajor> nn_upscale(const Eigen::Tensor<float, 4, Eigen::RowMajor> &input, int height, int width){ //todo this can be made easyer
     int N = input.dimension(0);
     int H = input.dimension(1);
     int W = input.dimension(2);
@@ -274,8 +271,8 @@ Eigen::Tensor<float, 4, Eigen::RowMajor> softmax(const Eigen::Tensor<float, 4, E
     std::array<int,1> sum = {3};
     std::array<int,4> reshape = {(int)input.dimension(0),(int)input.dimension(1),(int)input.dimension(2),1};
     std::array<int, 4> bcast = {1,1,1,(int)input.dimension(3)};
-    Eigen::Tensor<float, 4, Eigen::RowMajor> exp_tensor = (input-input.maximum(sum).reshape(reshape).broadcast(bcast)).exp();
-    Eigen::Tensor<float, 4, Eigen::RowMajor> output = exp_tensor / exp_tensor.sum(sum).reshape(reshape).broadcast(bcast);
+    Eigen::Tensor<float, 4, Eigen::RowMajor> exp_tensor = (input-input.maximum(sum).eval().reshape(reshape).broadcast(bcast)).exp();// todo maybe auto instead test
+    Eigen::Tensor<float, 4, Eigen::RowMajor> output = exp_tensor / exp_tensor.sum(sum).eval().reshape(reshape).broadcast(bcast);
     return output;
 }
 
@@ -284,7 +281,7 @@ Eigen::Tensor<float, 3, Eigen::RowMajor> diagonalize(Eigen::Tensor<float, 2, Eig
     int size = input.dimension(1);
     Eigen::Tensor<float, 3, Eigen::RowMajor> output(N, size, size);
     output.setZero();
-    for(int b=0;b<N;b++) {
+    for(int b=0;b<N;b++) {//todo direct assingin not looping more readable
         for (int i = 0; i < size; i++) {
             output.data()[b*size*size+i * (size + 1)] = input.data()[b*size+i];
         }
@@ -301,21 +298,21 @@ Eigen::Tensor<float, 4, Eigen::RowMajor> softmax_backward(const Eigen::Tensor<fl
     std::array<int,3> input_dot_2 = {NHW, 1, C};
     std::array<int,3> input_dot_b2 = {1, C, 1};
     Eigen::Tensor<float, 3, Eigen::RowMajor> dot = input.reshape(input_dot_1).broadcast(input_dot_b1).eval() *
-            input.reshape(input_dot_2).broadcast(input_dot_b2).eval();
+            input.reshape(input_dot_2).broadcast(input_dot_b2).eval();//todo maybe auto maybe without eval
 
     Eigen::DSizes<Eigen::internal::traits<Eigen::Tensor<float, 4, Eigen::RowMajor>>::Index, 2> reshape_input;
     reshape_input[0] = NHW;
     reshape_input[1] = C;
-    Eigen::Tensor<float, 2, Eigen::RowMajor> reshaped_input = input.reshape(reshape_input);
+    Eigen::Tensor<float, 2, Eigen::RowMajor> reshaped_input = input.reshape(reshape_input);//todo use auto here
 
-    Eigen::Tensor<float, 3, Eigen::RowMajor> jacobi = diagonalize(reshaped_input) - dot;
+    Eigen::Tensor<float, 3, Eigen::RowMajor> jacobi = diagonalize(reshaped_input) - dot;//todo use auto here
 
     std::array<int,3> reshape_grad = {NHW,C,1};
     std::array<int,3> grad_b = {1, 1,C};
     std::array<int,1> grad_sum = {1};
     Eigen::Tensor<float, 4, Eigen::RowMajor> output = (jacobi * grad.reshape(reshape_grad).broadcast(grad_b)).sum(grad_sum).reshape(input.dimensions());
 
-    return output ;
+    return output;
 
 
 }

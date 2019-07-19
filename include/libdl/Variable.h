@@ -10,16 +10,17 @@
 #include <memory>
 #include "libdl/graph_node.h"
 
+/**
+ * \brief a class for variables of the graph
+ *
+ * this class is desinged to be optimized with the optimizer
+ */
 class Variable : public GraphNode{
 public:
     Variable(const std::string &name, const Tensor4f &data);
-
     std::string getType() override {return "Variable";}
     void forward() override;
-
     void backward() override;
-//practical same Variable Const Placeholder / just can be fed different
+    void setGradient(const Tensor4f &gradient) override;
 };
-
-
 #endif //TEST_VARIABLE_H

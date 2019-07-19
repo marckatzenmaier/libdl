@@ -5,36 +5,33 @@
 #ifndef TEST_GRAPH_NODE_H
 #define TEST_GRAPH_NODE_H
 
-#include "Eigen/Core"
 #include <vector>
 #include <string>
 #include <memory>
-#include <iostream>
 #include "unsupported/Eigen/CXX11/Tensor"
-//using namespace std;
-//using namespace Eigen;
+
 typedef Eigen::Tensor<float, 4, Eigen::RowMajor> Tensor4f;
 
-typedef struct Tensor{
-    Tensor4f data;
-    Tensor4f gradient;
-    //Eigen::MatrixXf data;
-    //Eigen::MatrixXf gradient;
-}Tensor;
-typedef std::shared_ptr<Tensor> TensorPtr;
-
+/**
+ * \brief this is a base class for all nodes in the computational graph.
+ *
+ * Each node contain data(for the forward pass) a gradient(for the backward pass) and a name to be identified for
+ * debugging.
+ * Additionally to the get and set methods all base classes need to override the forward and the backward methods which
+ * will be called in during the forward and backward pass
+ * To identify the type a getType method is available which should be overritten so the graph can sort based on this
+ * method
+ *
+ */
 class GraphNode{
-    static int node_count;
 protected:
     std::string name;
     Tensor4f data;
     Tensor4f gradient;
-    //Eigen::MatrixXf data;
-    //Eigen::MatrixXf gradient;
 public:
     void setData(const Tensor4f &data);
     const Tensor4f &getGradient() const;
-    void setGradient(const Tensor4f &gradient);
+    virtual void setGradient(const Tensor4f &gradient);
     void clearGradient();
     void addGradient(const Tensor4f &gradient);
     const Tensor4f &getData() const;

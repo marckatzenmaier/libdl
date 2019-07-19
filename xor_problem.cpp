@@ -105,6 +105,7 @@ int main()
         for(auto& d:data_set) {
             input->setData(d.first);
             label->setData(d.second);
+            graph.clearGradients();
             graph.forward();
             loss += loss_MSE(opp5, label);
             graph.backward();

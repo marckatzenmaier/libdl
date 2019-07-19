@@ -24,8 +24,8 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 endif()
 
 #precompiled header stuff
-set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
-include(cotire.cmake)
+#set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
+#include(cotire.cmake)
 
 add_subdirectory(docs)
 
@@ -35,21 +35,20 @@ include_directories(${CATCH_INCLUDE_DIRS})
 set(EIGEN3_INCLUDE_DIR extern/eigen-git-mirror)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
+set(PYBIND11_CPP_STANDARD -std=c++1z)
 add_subdirectory(extern/pybind11)
-#add_subdirectory(extern/spdlog)
 
 #https://github.com/StableCoder/cmake-scripts
 include(code-coverage.cmake)
-include(sanitizers.cmake)
 
 #add_subdirectory(src)
-set(SRC_FILES src/test.cpp src/graph_node.cpp include/libdl/opperation_node.h include/libdl/Constant.h include/libdl/Variable.h include/libdl/opperation.h include/libdl/placeholder.h include/libdl/graph.h src/Constant.cpp src/Variable.cpp src/opperation.cpp src/placeholder.cpp src/graph.cpp include/libdl/Optimizer.h src/Optimizer.cpp include/libdl/loss.h src/loss.cpp include/libdl/initializer.h src/initializer.cpp src/math_functions.cpp include/libdl/math_functions.h include/libdl/helper_functions.h src/helper_functions.cpp)
+set(SRC_FILES src/test.cpp src/graph_node.cpp include/libdl/Variable.h include/libdl/opperation.h include/libdl/placeholder.h include/libdl/graph.h src/Variable.cpp src/opperation.cpp src/placeholder.cpp src/graph.cpp include/libdl/Optimizer.h src/Optimizer.cpp include/libdl/loss.h src/loss.cpp include/libdl/initializer.h src/initializer.cpp src/math_functions.cpp include/libdl/math_functions.h include/libdl/helper_functions.h src/helper_functions.cpp)
 
 
 add_library(${MY_LIB_NAME} SHARED ${SRC_FILES})
 target_include_directories(${MY_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_target_properties(${MY_LIB_NAME} PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-cotire(${MY_LIB_NAME})
+#cotire(${MY_LIB_NAME})
 
 
 find_program (CLANG_TIDY_EXE NAMES "clang-tidy")
@@ -64,10 +63,10 @@ endif()
 set_target_properties(${MY_LIB_NAME} PROPERTIES CXX_CLANG_TIDY "${CMAKE_CXX_CLANG_TIDY}")
 
 
-set(TEST_SRC_FILES  tests/mainTest.cpp tests/trytest.cpp tests/test_graph_node.cpp tests/test_opperation_node.cpp tests/test_variable.cpp tests/test_constant.cpp tests/test_opperation.cpp tests/test_placeholder.cpp tests/test_graph.cpp tests/test_Optimizer.cpp tests/test_loss.cpp tests/test_initializer.cpp tests/test_math_functions.cpp)
+set(TEST_SRC_FILES  tests/mainTest.cpp tests/trytest.cpp tests/test_graph_node.cpp tests/test_variable.cpp tests/test_opperation.cpp tests/test_placeholder.cpp tests/test_graph.cpp tests/test_Optimizer.cpp tests/test_loss.cpp tests/test_initializer.cpp tests/test_math_functions.cpp)
 add_executable(my_tests ${TEST_SRC_FILES})
 target_link_libraries(my_tests PRIVATE ${MY_LIB_NAME})
-cotire(my_tests)
+#cotire(my_tests)
 target_code_coverage(my_tests)
 
 
@@ -76,3 +75,14 @@ target_link_libraries(XOR PRIVATE ${MY_LIB_NAME})
 
 add_executable(MNIST mnist_problem.cpp)
 target_link_libraries(MNIST PRIVATE ${MY_LIB_NAME})
+
+
+add_executable(try_stuff profile_and_try_stuff_main.cpp)
+target_link_libraries(try_stuff PRIVATE ${MY_LIB_NAME})
+
+
+set(MY_PY_LIB_NAME ${MY_LIB_NAME}_py)
+pybind11_add_module(${MY_PY_LIB_NAME} src/py_binding.cpp)
+target_include_directories(${MY_PY_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${MY_PY_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/extern/pybind/include)
+target_link_libraries(${MY_PY_LIB_NAME} PUBLIC ${MY_LIB_NAME})

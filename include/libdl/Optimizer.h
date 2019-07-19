@@ -16,6 +16,12 @@
 #include "libdl/graph_node.h"
 #include "libdl/Variable.h"
 #include "libdl/opperation.h"
+
+/**
+ * \brief base class for all optimizers
+ *
+ * all derived classes need to override the optimize function
+ */
 class Optimizer{
 protected:
     std::vector<std::shared_ptr<Variable> > variable_vec;
@@ -24,6 +30,11 @@ public:
     virtual void optimize()=0;
 };
 
+/**
+ * \brief Stochastic gradient descent optimizer
+ *
+ * optimizes the weight based on stochastic gradient descent algorithm
+ */
 class SGD_Optimizer : Optimizer{
 private:
     float learning_rate;

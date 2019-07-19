@@ -10,6 +10,11 @@
 #include <memory>
 #include "libdl/graph_node.h"
 
+/**
+ * \brief a class which is used for feeding information into a graph
+ *
+ * the name need to be unambigous within a graph
+ */
 class Placeholder : public GraphNode{
 public:
     void forward() override{};

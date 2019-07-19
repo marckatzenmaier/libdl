@@ -101,10 +101,9 @@ SCENARIO( "Test conv2d_NHWC", "[Math]"){
 
         output = conv2d_NHWC(input, kernel);
 
-
         Eigen::Tensor<float, 4, RowMajor> expected_values(N, out_h, out_w, kernel_co);//b,h,w,c
         expected_values.setValues({{{{24},{32}},
-                                    {{48},{56}}}});
+                                    {{48},{56}}}});  // todo potential memory leak ??
         THEN("output should be like expected"){
             Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values-output).abs().maximum();
             CHECK(ret_val(0) == 0);
@@ -128,7 +127,7 @@ SCENARIO( "Test conv2d_NHWC", "[Math]"){
 
         Eigen::Tensor<float, 4, RowMajor> expected_values(N, out_h, out_w, kernel_co);//b,h,w,c
         expected_values.setValues({{{{12,24,36},{16,32,48}},
-                                    {{24,48,72},{28,56,84}}}});
+                                    {{24,48,72},{28,56,84}}}}); // todo potentrial memory leak ??
         THEN("output should be like expected"){
             Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values-output).abs().maximum();
             CHECK(ret_val(0) == 0);
@@ -159,7 +158,7 @@ SCENARIO( "Test conv2d_NHWC", "[Math]"){
         expected_values.setValues({{{{24,48,72},{32,64,96}},
                                     {{48,96,144},{56,112,168}}},
                                    {{{24,48,72},{24,48,72}},
-                                    {{40,80,120},{40,80,120}}}});
+                                    {{40,80,120},{40,80,120}}}}); // todo potential memory leak ??
         THEN("output should be like expected"){
             Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values-output).abs().maximum();
             CHECK(ret_val(0) == 0);
@@ -182,7 +181,7 @@ SCENARIO( "Test conv2d_NHWC", "[Math]"){
         output = conv2d_NHWC(input, kernel);
         Eigen::Tensor<float, 4, RowMajor> expected_values(N, out_h, out_w, kernel_co);//b,h,w,c
         expected_values.setValues({{{{28}},
-                                    {{52}}}});
+                                    {{52}}}}); // todo potential memory leak ??
         THEN("output should be like expected"){
             Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values-output).abs().maximum();
             CHECK(ret_val(0) == 0);
@@ -262,7 +261,7 @@ SCENARIO( "Test conv2d_NHWC_backprop_kernel", "[Math]"){
 
         Eigen::Tensor<float, 4, RowMajor> expected_values(kernel_h, kernel_w, kernel_ci, kernel_co);
         expected_values.setValues({{{{37},{37}}, {{47},{47}}},
-                                   {{{67},{67}}, {{77},{77}}}});
+                                   {{{67},{67}}, {{77},{77}}}}); // todo potential memory leak ??
 
         THEN("output should be like expected") {
             Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values - kernel).abs().maximum();
@@ -286,7 +285,7 @@ SCENARIO( "Test conv2d_NHWC_backprop_kernel", "[Math]"){
 
         Eigen::Tensor<float, 4, RowMajor> expected_values(kernel_h, kernel_w, kernel_ci, kernel_co);
         expected_values.setValues({{{{37,49,61}}, {{47,63,79}}},
-                                   {{{67,91,115}}, {{77,105,133}}}});
+                                   {{{67,91,115}}, {{77,105,133}}}}); // todo potential memory leak ??
 
         THEN("output should be like expected") {
             Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values - kernel).abs().maximum();
@@ -316,7 +315,7 @@ SCENARIO( "Test conv2d_NHWC_backprop_kernel", "[Math]"){
 
         Eigen::Tensor<float, 4, RowMajor> expected_values(kernel_h, kernel_w, kernel_ci, kernel_co);
         expected_values.setValues({{{{105,117,129},{105,117,129}}, {{115,131,147},{115,131,147}}},
-                                   {{{175,199,223},{175,199,223}}, {{185,213,241},{185,213,241}}}});
+                                   {{{175,199,223},{175,199,223}}, {{185,213,241},{185,213,241}}}}); // todo potential memory leak ??
 
         THEN("output should be like expected") {
             Eigen::Tensor<float, 0, RowMajor> ret_val = (expected_values - kernel).abs().maximum();
@@ -343,7 +342,7 @@ SCENARIO( "Test conv2d_NHWC_backprop_kernel", "[Math]"){
         Eigen::Tensor<float, 4, RowMajor> expected_values(kernel_h, kernel_w, kernel_ci, kernel_co);
         expected_values.setValues({{{{ 9}}, {{12}}, {{15}}},
                                    {{{18}}, {{21}}, {{24}}},
-                                   {{{21}}, {{24}}, {{27}}}});
+                                   {{{21}}, {{24}}, {{27}}}}); // todo potential memory leak ??
 
 
         THEN("output should be like expected") {
@@ -422,7 +421,7 @@ SCENARIO( "Test conv2d_NHWC_backprop_input", "[Math]"){
         Eigen::Tensor<float, 4, RowMajor> expected_values(N, H, W, C);
         expected_values.setValues({{{{ 2, 4}, { 8,16}, { 8,16}},
                                     {{12,24}, {40,80}, {32,64}},
-                                    {{18,36}, {48,96}, {32,64}}}});
+                                    {{18,36}, {48,96}, {32,64}}}}); // todo potential memory leak ??
 
 
         THEN("output should be like expected") {
@@ -447,7 +446,7 @@ SCENARIO( "Test conv2d_NHWC_backprop_input", "[Math]"){
         Eigen::Tensor<float, 4, RowMajor> expected_values(N, H, W, C);
         expected_values.setValues({{{{ 8}, { 27}, {22}},
                                     {{38}, {110}, {78}},
-                                    {{42}, {107}, {68}}}});
+                                    {{42}, {107}, {68}}}}); // todo potential memory leak ??
 
 
         THEN("output should be like expected") {
@@ -478,7 +477,7 @@ SCENARIO( "Test conv2d_NHWC_backprop_input", "[Math]"){
                                     {{18}, {48}, {32}}},
                                    {{{ 1}, { 4}, { 4}},
                                     {{ 6}, {20}, {16}},
-                                    {{ 9}, {24}, {16}}}});
+                                    {{ 9}, {24}, {16}}}}); // todo potential memory leak ??
 
 
         THEN("output should be like expected") {
@@ -510,7 +509,7 @@ SCENARIO( "Test conv2d_NHWC_backprop_input", "[Math]"){
                                     {{42,56}, {110,142}, {72, 90}}},
                                    {{{ 6, 9}, { 22, 33}, {20, 30}},
                                     {{32,45}, {100,139}, {76,104}},
-                                    {{42,56}, {110,142}, {72, 90}}}});
+                                    {{42,56}, {110,142}, {72, 90}}}}); // todo potential memory leak ??
 
 
         THEN("output should be like expected") {
