@@ -3,7 +3,7 @@
 //
 
 #include <libdl/graph_node.h>
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 using namespace std;
 using namespace Eigen;
 

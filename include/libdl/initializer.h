@@ -6,7 +6,7 @@
 #define TEST_INITIALIZER_H
 #include "libdl/graph_node.h"
 #include <iostream>
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 #include "libdl/opperation.h"
 #include <libdl/graph.h>
 #include <libdl/Optimizer.h>

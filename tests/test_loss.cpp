@@ -5,7 +5,7 @@
 #include "catch2/catch.hpp"
 #include "libdl/graph_node.h"
 #include <iostream>
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 #include "libdl/loss.h"
 
 using namespace std;

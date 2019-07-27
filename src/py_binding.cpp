@@ -11,7 +11,7 @@
 #include "libdl/loss.h"
 #include "libdl/Optimizer.h"
 #include "libdl/graph_node.h"
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 #include "libdl/initializer.h"
 #include <iostream>
 

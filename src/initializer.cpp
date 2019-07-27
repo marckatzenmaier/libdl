@@ -5,7 +5,7 @@
 //MatrixXd::Random(3,3)
 #include "libdl/initializer.h"
 #include "libdl/graph_node.h"
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 #include <random>
 #include <cmath>
 

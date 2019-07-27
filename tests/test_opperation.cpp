@@ -5,7 +5,7 @@
 
 #include "catch2/catch.hpp"
 #include "libdl/graph_node.h"
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 #include "libdl/opperation.h"
 #include <iostream>
 using namespace Catch::literals;

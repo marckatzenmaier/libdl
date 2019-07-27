@@ -2,12 +2,12 @@
 // Created by marc on 26.04.19.
 //
 
-#ifndef TEST_TEST_H
-#define TEST_TEST_H
+#ifndef TEST_WRAPPER_H
+#define TEST_WRAPPER_H
 #include <iostream>
 
 #include "libdl/graph_node.h"
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 #include "libdl/opperation.h"
 #include <libdl/graph.h>
 #include <libdl/Optimizer.h>
@@ -34,4 +34,4 @@ std::shared_ptr<GraphNode> make_ReLU(const std::string& name, const std::shared_
     return std::make_shared<ReLU>(ReLU(name, NodeVec{mat}));
 }
 
-#endif //TEST_TEST_H
+#endif //TEST_WRAPPER_H

@@ -12,7 +12,7 @@
 #include "libdl/graph_node.h"
 #include "libdl/opperation.h"
 #include "libdl/placeholder.h"
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 
 //typedef std::vector<Opperation> OpperationVec; //todo why i need this
 

@@ -2,7 +2,7 @@
 // Created by marc on 30.04.19.
 //
 #include "catch2/catch.hpp"
-#include "libdl/test.h"
+#include "libdl/wrapper.h"
 
 /*TEST_CASE( "Factorials are computed", "[factorial]" ) {
 REQUIRE( Factorial(1) == 1 );

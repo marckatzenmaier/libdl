@@ -8,7 +8,7 @@
 #include <vector>
 #include <libdl/graph.h>
 #include "libdl/graph_node.h"
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 #include "libdl/opperation.h"
 
 /**

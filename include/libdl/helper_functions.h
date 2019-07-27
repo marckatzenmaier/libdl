@@ -6,7 +6,7 @@
 #define TEST_HELPER_FUNCTIONS_H
 
 #include <map>
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 #include "libdl/graph.h"
 #include <vector>
 #include <utility>

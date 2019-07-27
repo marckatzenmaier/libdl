@@ -6,7 +6,7 @@
 #include <vector>
 #include <libdl/graph.h>
 #include "libdl/graph_node.h"
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 #include "libdl/opperation.h"
 float loss_MSE(const std::shared_ptr<GraphNode>& output, const std::shared_ptr<GraphNode>& label){
     float n = output->getData().size()/output->getData().dimension(0);

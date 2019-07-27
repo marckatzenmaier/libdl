@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 #include "libdl/opperation.h"
 #include "libdl/graph_node.h"
 #include "libdl/graph.h"

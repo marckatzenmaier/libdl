@@ -6,7 +6,7 @@
 #include "catch2/catch.hpp"
 #include "libdl/graph_node.h"
 #include <iostream>
-#include "libdl/Variable.h"
+#include "libdl/variable.h"
 
 using namespace std;
 using namespace Eigen;
