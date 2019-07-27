@@ -14,6 +14,8 @@ if (DOXYGEN_FOUND)
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM )
+    #add_custom_command(TARGET doc_doxygen POST_BUILD COMMAND ${CMAKE_COMMAND} -E create_symlink
+    #        ${PROJECT_BINARY_DIR}/docs/html/index.html ${PROJECT_BINARY_DIR}/docs/documentation.html)
 else (DOXYGEN_FOUND)
     message("Doxygen need to be installed to generate the doxygen documentation")
 endif (DOXYGEN_FOUND)

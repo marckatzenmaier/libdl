@@ -48,6 +48,7 @@ The XOR problem is a commen toy example for deep learning with the truth table:
     |0|1|1|
     |1|0|1|
     |1|1|0|
+
     This problem is only solvable with at least one hidden layer since a nonlinear seperation plane is needed to seperate the labels 1 and 0.
     The code for this example project is in the xor_problem.cpp file. It can be run with the `./XOR` comand form within the build directory.
 - **MNIST**
