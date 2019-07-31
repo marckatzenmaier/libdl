@@ -15,6 +15,8 @@ It has two main components **GraphNode** and **Graph** objects and some addition
     - wrapper functions for easier graph construction
     - some preconstructed network architectures
     - some preinstalled datasets
+# Documentation
+The documentation can be found in html form in *Current build directory*/docs/html/index.html
 # Installation
 For installing the library an installation of cmake is neccesary.
 The first step is to download the repository with:
@@ -26,16 +28,18 @@ Then create the build directory and change into it:
 mkdir build
 cd build
 ```
-Afterwards run the cmake comand with e.g. the build_type:
+Afterwards run the cmake comand with e.g. the build_type(Release is strongly recomended default is Debug which is useful for extending the library):
 ```
 cmake .. -DCMAKE_BUILD_TYPE=Release
 ```
+Additional parameters are -DCODE_COVERAGE=ON which the builds with code coverage infos to get the summary run 'make ccov-my_tests' after the build process this will generate a folder called ccov in which you will find the index.html file. The percentage displayed in the comand line isn't representable since the coverage also accounts other files like eigen. An other option is use_pch for using precompiled headers which increases first build time and reduce build time for the next builds.
 And to build the repository run:
 ```
 make
 ```
 # Python bindings
-The python bindings for this library won't contain the full capabilites of the library they are desinged with fast prototyping in mind. Therefore they don't contain the capability to extend c++ classes in python. If you want to write custom opperations you have to do this in c++. For the other common usecases like dataloading, parameter optimization and loss functions it is possible to do this in python using numpy due to the converstion from four dimensional eigen tensors in four dimensional numpy arrays. The Face Recognition example contains code for such a custom loss function and data loading in python.
+imported with 'import my_dllib_py'
+The python bindings for this library won't contain the full capabilites of the library they are desinged with fast prototyping in mind. Therefore they don't contain the capability to extend c++ classes in python. If you want to write custom opperations you have to do this in c++. For the other common usecases like dataloading, parameter optimization and loss functions it is possible to do this in python using numpy due to the converstion from four dimensional eigen tensors in four dimensional numpy arrays(important is the dtype float32). The Face Recognition example contains code for such a custom loss function and data loading in python.
 # Extend the library
 If you want to extend the library it is essential to derive from the corresponding base classes (e.g. opperation, optimizer) and use their interface to guarantee the compatibility with the library. For fast development it is possible to extend parts of the library with python functions for e.g. the contrastive loss like it is done in the Face Recognition example.
 # Examples

@@ -7,13 +7,15 @@
 using namespace std;
 using namespace Eigen;
 
+
+std::string Variable::getType() {return "Variable";}
+
 Variable::Variable(const std::string& name, const Tensor4f &data)
         : GraphNode(name) {
     setData(data);
     gradient = Tensor4f(data.dimension(0),data.dimension(1),data.dimension(2),data.dimension(3));
     clearGradient();
 }
-
 
 void Variable::forward(){
 }

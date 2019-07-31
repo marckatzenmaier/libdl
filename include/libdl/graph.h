@@ -14,8 +14,6 @@
 #include "libdl/placeholder.h"
 #include "libdl/variable.h"
 
-//typedef std::vector<Opperation> OpperationVec; //todo why i need this
-
 /**
  * \brief the actual graph class which need to be instanciated for performing calculations
  *

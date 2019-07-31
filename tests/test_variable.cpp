@@ -7,6 +7,7 @@
 #include "libdl/graph_node.h"
 #include <iostream>
 #include "libdl/variable.h"
+#include "libdl/graph.h"
 
 using namespace std;
 using namespace Eigen;
@@ -20,9 +21,11 @@ SCENARIO( "Test Variable", "[Node]"){
         Tensor4f grad = Tensor4f(1,2,3,1);
         grad.setValues({{{{7},{8},{9}},{{10},{11},{12}}}});// 7, 8, 9, 10, 11, 12;
         Variable var = Variable(name, data);
+        CHECK(var.getType()=="Variable");
         var.setGradient(grad);
+        Graph g(make_shared<Variable>(var));
         WHEN("Forward called"){
-            var.forward();
+            g.forward();
             THEN(" data and gradient doesn't change"){
                 Eigen::Tensor<float, 0, RowMajor> val = (var.getData() - data).abs().maximum();
                 REQUIRE(val(0) == 0);
@@ -31,7 +34,7 @@ SCENARIO( "Test Variable", "[Node]"){
             }
         }
         WHEN("Backward called"){
-            var.backward();
+            g.backward();
             THEN("data and gradient doesn't change"){
                 Eigen::Tensor<float, 0, RowMajor> val = (var.getData() - data).abs().maximum();
                 REQUIRE(val(0) == 0);

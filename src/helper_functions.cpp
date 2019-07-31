@@ -80,7 +80,7 @@ void read_Mnist_Label(string filename, vector<float> &vec)
     }
 }
 
-void save_variable(std::string filename, std::shared_ptr<Variable> &variable){
+/*void save_variable(std::string filename, std::shared_ptr<Variable> &variable){
     int name_length, data_length;
     string name = variable->getName();
     name_length = name.length();
@@ -108,7 +108,7 @@ void load_variable(std::string filename, std::shared_ptr<Variable> &variable){
     //cout << name_length << " " << data_length<< " " << name << " " << endl<<variable->getData()<<endl;
     ifile.close();
 
-}
+}*/
 
 map<std::string, std::shared_ptr<Variable>> map_name_variable(std::vector<std::shared_ptr<Variable>> &weights){
     map<std::string, std::shared_ptr<Variable>> my_map;
@@ -145,16 +145,12 @@ void load_weights(std::string filename, std::vector<std::shared_ptr<Variable>> &
         string name;
         name.resize(name_length);
         ifile.read((char *) name.c_str(), sizeof(char) * name_length);
-        if (data_length != my_map[name]->getData().size()) {
-            cout << "error wrong dimension loaded" << endl;//todo make exception
-        }
         ifile.read((char *) my_map[name]->getData().data(), sizeof(float) * data_length);
     }
-    //cout << name_length << " " << data_length<< " " << name << " " << endl<<variable->getData()<<endl;
     ifile.close();
 }
 
-Tensor4f copy_mnist_to_tensor(std::vector<std::vector<float> > imgs){// todo since only once not performance important remove memcpy
+Tensor4f copy_mnist_to_tensor(std::vector<std::vector<float> > imgs){
     int num_sample = imgs.size();
     int sample_size = imgs[0].size();
     Eigen::Tensor<float, 1, Eigen::RowMajor>data(num_sample * sample_size);
@@ -194,7 +190,7 @@ MnistDataset::MnistDataset(const std::string &filepath_data, const std::string &
     this->batch = batch;
 }
 pair<Tensor4f, Tensor4f> MnistDataset::operator[](int index){
-    Eigen::array<pair<int, int>, 4> paddings;//todo can be moved to constructor
+    Eigen::array<pair<int, int>, 4> paddings;
     paddings[0] = make_pair(0, 0);
     paddings[1] = make_pair(2, 2);
     paddings[2] = make_pair(2, 2);
@@ -216,7 +212,6 @@ Graph make_LeNet(int b){
     shared_ptr<GraphNode> input = make_shared<Placeholder>(Placeholder("input", Tensor4f(b,32,32, 1)));
     shared_ptr<GraphNode> conv1_weights = make_shared<Variable>(Variable("conv1_weights", Tensor4f(5,5,1,6)));
     shared_ptr<GraphNode> conv1 = make_shared<Conv2d>(Conv2d("conv1", NodeVec{input, conv1_weights}));
-    //todo add bias
     shared_ptr<GraphNode> conv1_act = make_shared<TanH>(TanH("conv1_act", NodeVec{conv1}));
 
     shared_ptr<GraphNode> pool_average1 = make_shared<Pool_average>(Pool_average("pool_average1", NodeVec{conv1_act}));
@@ -224,7 +219,6 @@ Graph make_LeNet(int b){
 
     shared_ptr<GraphNode> conv2_weights = make_shared<Variable>(Variable("conv2_weights", Tensor4f(5,5,6,16)));
     shared_ptr<GraphNode> conv2 = make_shared<Conv2d>(Conv2d("conv2", NodeVec{pool_average1_act, conv2_weights}));
-    //todo add bias
     shared_ptr<GraphNode> conv2_act = make_shared<TanH>(TanH("conv2_act", NodeVec{conv2}));
 
 
@@ -233,26 +227,22 @@ Graph make_LeNet(int b){
 
     shared_ptr<GraphNode> conv3_weights = make_shared<Variable>(Variable("conv3_weights", Tensor4f(5,5,16,120)));
     shared_ptr<GraphNode> conv3 = make_shared<Conv2d>(Conv2d("conv3", NodeVec{pool_average2_act, conv3_weights}));
-    //todo add bias
     shared_ptr<GraphNode> conv3_act = make_shared<TanH>(TanH("conv3_act", NodeVec{conv3}));
 
     shared_ptr<GraphNode> fc1_weights = make_shared<Variable>(Variable("fc1_weights", Tensor4f(1,1,120,84)));
     shared_ptr<GraphNode> fc1 = make_shared<MatrixMultiplication>(MatrixMultiplication("fc1", NodeVec{conv3_act, fc1_weights}));
-    //todo add bias
     shared_ptr<GraphNode> fc1_act = make_shared<TanH>(TanH("fc1_act", NodeVec{fc1}));
 
 
     shared_ptr<GraphNode> fc2_weights = make_shared<Variable>(Variable("fc2_weights", Tensor4f(1,1,84,10)));
     shared_ptr<GraphNode> fc2 = make_shared<MatrixMultiplication>(MatrixMultiplication("fc2", NodeVec{fc1_act, fc2_weights}));
-    //todo add bias
     shared_ptr<GraphNode> fc2_act = make_shared<Softmax>(Softmax("fc1_act", NodeVec{fc2}));
     return Graph(fc2_act);
 }
 
-Tensor4f argmax(Tensor4f &input){ // todo maybe rather math function
+Tensor4f argmax(Tensor4f &input){
     int dim_0 = input.dimension(0)*input.dimension(1)*input.dimension(2);
     int dim_1 = input.dimension(3);
-    //std::array<int,2> reshape = {dim_0, dim_1};
     Eigen::DSizes<Eigen::internal::traits<Eigen::Tensor<float, 4, Eigen::RowMajor>>::Index, 2> reshape;
     reshape[0] = dim_0;
     reshape[1] = dim_1;
@@ -289,7 +279,6 @@ std::vector<Graph> make_LeNet_siamnese(int b, int output_dim){
     shared_ptr<GraphNode> input = make_shared<Placeholder>(Placeholder("input", Tensor4f(b,32,32, 1)));
     shared_ptr<GraphNode> conv1_weights = make_shared<Variable>(Variable("conv1_weights", Tensor4f(5,5,1,6)));
     shared_ptr<GraphNode> conv1 = make_shared<Conv2d>(Conv2d("conv1", NodeVec{input, conv1_weights}));
-    //todo add bias
     shared_ptr<GraphNode> conv1_act = make_shared<TanH>(TanH("conv1_act", NodeVec{conv1}));
 
     shared_ptr<GraphNode> pool_average1 = make_shared<Pool_average>(Pool_average("pool_average1", NodeVec{conv1_act}));
@@ -297,7 +286,6 @@ std::vector<Graph> make_LeNet_siamnese(int b, int output_dim){
 
     shared_ptr<GraphNode> conv2_weights = make_shared<Variable>(Variable("conv2_weights", Tensor4f(5,5,6,16)));
     shared_ptr<GraphNode> conv2 = make_shared<Conv2d>(Conv2d("conv2", NodeVec{pool_average1_act, conv2_weights}));
-    //todo add bias
     shared_ptr<GraphNode> conv2_act = make_shared<TanH>(TanH("conv2_act", NodeVec{conv2}));
 
 
@@ -306,54 +294,38 @@ std::vector<Graph> make_LeNet_siamnese(int b, int output_dim){
 
     shared_ptr<GraphNode> conv3_weights = make_shared<Variable>(Variable("conv3_weights", Tensor4f(5,5,16,120)));
     shared_ptr<GraphNode> conv3 = make_shared<Conv2d>(Conv2d("conv3", NodeVec{pool_average2_act, conv3_weights}));
-    //todo add bias
     shared_ptr<GraphNode> conv3_act = make_shared<TanH>(TanH("conv3_act", NodeVec{conv3}));
 
     shared_ptr<GraphNode> fc1_weights = make_shared<Variable>(Variable("fc1_weights", Tensor4f(1,1,120,84)));
     shared_ptr<GraphNode> fc1 = make_shared<MatrixMultiplication>(MatrixMultiplication("fc1", NodeVec{conv3_act, fc1_weights}));
-    //todo add bias
     shared_ptr<GraphNode> fc1_act = make_shared<TanH>(TanH("fc1_act", NodeVec{fc1}));
 
 
     shared_ptr<GraphNode> fc2_weights = make_shared<Variable>(Variable("fc2_weights", Tensor4f(1,1,84,output_dim)));
     shared_ptr<GraphNode> fc2 = make_shared<MatrixMultiplication>(MatrixMultiplication("fc2", NodeVec{fc1_act, fc2_weights}));
-    //todo add bias
-    //shared_ptr<GraphNode> fc2_act = make_shared<Softmax>(Softmax("fc1_act", NodeVec{fc2}));
     std::vector<Graph> output;
     output.push_back(Graph(fc2));
 
-
-
-
-
     shared_ptr<GraphNode> input_graph2 = make_shared<Placeholder>(Placeholder("input", Tensor4f(b,32,32, 1)));
     shared_ptr<GraphNode> conv1_graph2 = make_shared<Conv2d>(Conv2d("conv1", NodeVec{input_graph2, conv1_weights}));
-    //todo add bias
     shared_ptr<GraphNode> conv1_act_graph2 = make_shared<TanH>(TanH("conv1_act", NodeVec{conv1_graph2}));
 
     shared_ptr<GraphNode> pool_average1_graph2 = make_shared<Pool_average>(Pool_average("pool_average1", NodeVec{conv1_act_graph2}));
     shared_ptr<GraphNode> pool_average1_act_graph2 = make_shared<TanH>(TanH("pool_average1_act", NodeVec{pool_average1_graph2}));
 
     shared_ptr<GraphNode> conv2_graph2 = make_shared<Conv2d>(Conv2d("conv2", NodeVec{pool_average1_act_graph2, conv2_weights}));
-    //todo add bias
     shared_ptr<GraphNode> conv2_act_graph2 = make_shared<TanH>(TanH("conv2_act", NodeVec{conv2_graph2}));
-
 
     shared_ptr<GraphNode> pool_average2_graph2 = make_shared<Pool_average>(Pool_average("pool_average2", NodeVec{conv2_act_graph2}));
     shared_ptr<GraphNode> pool_average2_act_graph2 = make_shared<TanH>(TanH("pool_average2_act", NodeVec{pool_average2_graph2}));
 
     shared_ptr<GraphNode> conv3_graph2 = make_shared<Conv2d>(Conv2d("conv3", NodeVec{pool_average2_act_graph2, conv3_weights}));
-    //todo add bias
     shared_ptr<GraphNode> conv3_act_graph2 = make_shared<TanH>(TanH("conv3_act", NodeVec{conv3_graph2}));
 
     shared_ptr<GraphNode> fc1_graph2 = make_shared<MatrixMultiplication>(MatrixMultiplication("fc1", NodeVec{conv3_act_graph2, fc1_weights}));
-    //todo add bias
     shared_ptr<GraphNode> fc1_act_graph2 = make_shared<TanH>(TanH("fc1_act", NodeVec{fc1_graph2}));
 
-
     shared_ptr<GraphNode> fc2_graph2 = make_shared<MatrixMultiplication>(MatrixMultiplication("fc2", NodeVec{fc1_act_graph2, fc2_weights}));
-    //todo add bias
-    //shared_ptr<GraphNode> fc2_act_graph2 = make_shared<Softmax>(Softmax("fc1_act", NodeVec{fc2_graph2}));
 
     output.push_back(Graph(fc2_graph2));
 

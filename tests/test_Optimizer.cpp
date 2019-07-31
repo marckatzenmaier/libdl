@@ -11,36 +11,27 @@
 
 using namespace std;
 using namespace Eigen;
-/*SCENARIO( "Test Optimizer", "[Node]"){
-    GIVEN("Basic Nodes which forms a simple matrix multiplication graph"){
-        string name = "test_opp";
-        MatrixXf data1 = Eigen::MatrixXf(2,3);
-        data1 << 1, 2, 3, 4, 5, 6;
-        shared_ptr<GraphNode> var1 = make_shared<Variable>(Variable("1", data1));
+SCENARIO( "Test Optimizer", "[Node]"){
+    GIVEN("Vector of Variable with gradient, optimizer with lr 0.1"){
 
-        MatrixXf data2 = Eigen::MatrixXf(3,2);
-        data2 << 1, 2, 3, 4, 5, 6;
-        shared_ptr<GraphNode> var2 = make_shared<Variable>(Variable("2", data2));
-
-
-        MatrixXf data3 = Eigen::MatrixXf(2,2);
-        data3 << 1, 2, 3, 4;
-        shared_ptr<GraphNode> var3 = make_shared<Variable>(Variable("3", data3));
-
-        NodeVec input_nodes_1 = {var1, var2};
-        MatrixMultiplication opp_obj = MatrixMultiplication("MatMul", input_nodes_1);
-        shared_ptr<GraphNode> opp = make_shared<MatrixMultiplication>(opp_obj);
-
-        NodeVec input_nodes_2 = {opp, var3};
-        ElementwiseAdd opp2_obj = ElementwiseAdd("EleAdd", input_nodes_2);
-        shared_ptr<GraphNode> opp2 = make_shared<ElementwiseAdd>(opp2_obj);
-        WHEN("Constructor called"){
-            Graph graph = Graph(opp2);
-            graph.forward();
-            graph.backward();
-            THEN("calc_forward_order and calc_backward_order need to be calculated"){
-            REQUIRE(true); //todo figure out if this is testable e.g. no exception
+        Tensor4f data1 = Tensor4f(2,1,1,3);
+        data1.setValues({{{{1,2,3}}},{{{4,5,6}}}});
+        Tensor4f grad = Tensor4f(2,1,1,3);
+        grad.setValues({{{{1,1,1}}},{{{1,1,1}}}});
+        shared_ptr<Variable> var1 = make_shared<Variable>(Variable("1", data1));
+        var1->setGradient(grad);
+        vector<shared_ptr<Variable>> vec({var1});
+        SGD_Optimizer optim(vec, 0.1);
+        WHEN("optimize called"){
+            optim.optimize();
+            THEN("weights updated based on gradient and learning rate"){
+                CHECK(var1->getData()(0,0,0,0)==0.9f);
+                CHECK(var1->getData()(0,0,0,1)==1.9f);
+                CHECK(var1->getData()(0,0,0,2)==2.9f);
+                CHECK(var1->getData()(1,0,0,0)==3.9f);
+                CHECK(var1->getData()(1,0,0,1)==4.9f);
+                CHECK(var1->getData()(1,0,0,2)==5.9f);
             }
         }
     }
-}*/
+}

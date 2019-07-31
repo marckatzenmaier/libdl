@@ -71,6 +71,7 @@ PYBIND11_MODULE(my_dllib_py, m) {
 //Graph
 py::class_<Graph, std::unique_ptr<Graph>>graph(m, "Graph");
 graph
+    .def(py::init<std::shared_ptr<GraphNode>>())
     .def("forward", &Graph::forward)
     .def("backward",&Graph::backward)
     .def("setPlaceholder", &Graph::setPlaceholder)
@@ -100,14 +101,34 @@ m.def("make_LeNet_siamnese", &make_LeNet_siamnese);
 
 
 //Graph_node
-py::class_<Variable, std::shared_ptr<Variable>>(m, "Variable");
-py::class_<GraphNode, std::shared_ptr<GraphNode>>(m, "GraphNode")
-    .def(py::init<std::string>())
-        .def("getName", &GraphNode::getName)
-        .def("getType", &GraphNode::getType)
-        .def("setData", &GraphNode::setData)
-        .def("getData", &GraphNode::getData)
-        .def("setGradient", &GraphNode::setGradient);
+    py::class_<GraphNode, std::shared_ptr<GraphNode>>GraphNode(m, "GraphNode");
+            GraphNode.def("getName", &GraphNode::getName);
+            GraphNode.def("getType", &GraphNode::getType);
+            GraphNode.def("setData", &GraphNode::setData);
+            GraphNode.def("getData", &GraphNode::getData);
+            GraphNode.def("setGradient", &GraphNode::setGradient);
+
+    py::class_<Variable, std::shared_ptr<Variable>>(m, "Variable", GraphNode)
+            .def(py::init<std::string, Tensor4f>());
+    py::class_<Placeholder, std::shared_ptr<Placeholder>>(m, "Placeholder", GraphNode)
+            .def(py::init<std::string, Tensor4f>());
+    py::class_<MatrixMultiplication, std::shared_ptr<MatrixMultiplication>>(m, "MatrixMultiplication", GraphNode)
+            .def(py::init<std::string, NodeVec>());
+    py::class_<ElementwiseAdd, std::shared_ptr<ElementwiseAdd>>(m, "ElementwiseAdd", GraphNode)
+            .def(py::init<std::string, NodeVec>());
+    py::class_<Sigmoid, std::shared_ptr<Sigmoid>>(m, "Sigmoid", GraphNode)
+            .def(py::init<std::string, NodeVec>());
+    py::class_<ReLU, std::shared_ptr<ReLU>>(m, "ReLU", GraphNode)
+            .def(py::init<std::string, NodeVec>());
+    py::class_<Conv2d, std::shared_ptr<Conv2d>>(m, "Conv2d", GraphNode)
+            .def(py::init<std::string, NodeVec>());
+    py::class_<Pool_average, std::shared_ptr<Pool_average>>(m, "Pool_average", GraphNode)
+            .def(py::init<std::string, NodeVec>());
+    py::class_<Softmax, std::shared_ptr<Softmax>>(m, "Softmax", GraphNode)
+            .def(py::init<std::string, NodeVec>());
+    py::class_<TanH, std::shared_ptr<TanH>>(m, "TanH", GraphNode)
+            .def(py::init<std::string, NodeVec>());
+
 
 // load store
 m.def("save_weights", &save_weights);

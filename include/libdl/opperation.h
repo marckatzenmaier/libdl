@@ -36,6 +36,8 @@ protected:
 class MatrixMultiplication : public  Opperation{
 public:
     MatrixMultiplication(const std::string &name, const NodeVec &inputs);
+
+protected:
     void forward() override;
     void backward() override;
 
@@ -49,6 +51,8 @@ public:
 class ElementwiseAdd : public  Opperation{
 public:
     ElementwiseAdd(const std::string &name, const NodeVec &inputs);
+
+protected:
     void forward() override;
     void backward() override;
 };
@@ -59,6 +63,8 @@ public:
 class Sigmoid : public  Opperation{
 public:
     Sigmoid(const std::string &name, const NodeVec &inputs);
+
+protected:
     void forward() override;
     void backward() override;
 };
@@ -69,6 +75,8 @@ public:
 class ReLU : public  Opperation{
 public:
     ReLU(const std::string &name, const NodeVec &inputs);
+
+protected:
     void forward() override;
     void backward() override;
 private:
@@ -85,6 +93,8 @@ private:
 class Conv2d : public  Opperation{
 public:
     Conv2d(const std::string &name, const NodeVec &inputs);
+
+protected:
     void forward() override;
     void backward() override;
 
@@ -96,6 +106,8 @@ public:
 class Pool_average : public  Opperation{
 public:
     Pool_average(const std::string &name, const NodeVec &inputs);
+
+protected:
     void forward() override;
     void backward() override;
 };
@@ -106,6 +118,8 @@ public:
 class Softmax : public  Opperation{
 public:
     Softmax(const std::string &name, const NodeVec &inputs);
+
+protected:
     void forward() override;
     void backward() override;
 };
@@ -116,6 +130,8 @@ public:
 class TanH : public  Opperation{
 public:
     TanH(const std::string &name, const NodeVec &inputs);
+
+protected:
     void forward() override;
     void backward() override;
 };

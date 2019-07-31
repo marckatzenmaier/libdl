@@ -8,10 +8,11 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <iostream>
 #include "unsupported/Eigen/CXX11/Tensor"
 
 typedef Eigen::Tensor<float, 4, Eigen::RowMajor> Tensor4f;
-
+class Graph;
 /**
  * \brief this is a base class for all nodes in the computational graph.
  *
@@ -28,6 +29,8 @@ protected:
     std::string name;
     Tensor4f data;
     Tensor4f gradient;
+    virtual void forward()=0;
+    virtual void backward()=0;
 public:
     void setData(const Tensor4f &data);
     const Tensor4f &getGradient() const;
@@ -37,9 +40,8 @@ public:
     const Tensor4f &getData() const;
     GraphNode(const std::string& name);
     const std::string &getName() const;
-    virtual void forward(){}
-    virtual void backward(){}
-    virtual std::string getType(){return "GraphNode";}
+    virtual std::string getType()=0;
+    friend Graph;
 };
 typedef std::vector<std::shared_ptr<GraphNode> > NodeVec;
 

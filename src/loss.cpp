@@ -16,9 +16,9 @@ float loss_MSE(const std::shared_ptr<GraphNode>& output, const std::shared_ptr<G
 }
 float loss_Crossentropy(const std::shared_ptr<GraphNode>& output, const std::shared_ptr<GraphNode>& label){
     output->setGradient((output->getData()-label->getData()));
-    Tensor4f ones(output->getData().dimensions()); //todo broadcast
+    Tensor4f ones(output->getData().dimensions());
     ones.setConstant(1.0);
-    Tensor4f epsilon(output->getData().dimensions()); //todo broadcast
+    Tensor4f epsilon(output->getData().dimensions());
     epsilon.setConstant(1e-7);
     Eigen::Tensor<float, 0, Eigen::RowMajor> result =
             -((label->getData()*(output->getData()+epsilon).log()) + ((ones-label->getData())*(ones-output->getData()+epsilon).log())).mean();

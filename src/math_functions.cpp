@@ -195,7 +195,7 @@ Eigen::Tensor<float, 4, Eigen::RowMajor> pool_average(const Eigen::Tensor<float,
     out_h = (H - (kernel_h-stride_h))/stride_h;
     out_w = (W - (kernel_w-stride_w))/stride_w;
     if (out_h != (H - (kernel_h-stride_h))/(float)stride_h || out_w != (W - (kernel_w-stride_w))/(float)stride_w){
-        cout<<"error"<<endl; //todo throw error
+        throw std::runtime_error("average pooling dimensions won't fit");
     }
 
     Eigen::Tensor<float, 4, RowMajor> output(N, out_h, out_w, C);//b,h,w,c
@@ -256,7 +256,6 @@ Eigen::Tensor<float, 4, Eigen::RowMajor> nn_upscale(const Eigen::Tensor<float, 4
 }
 
 Eigen::Tensor<float, 4, Eigen::RowMajor> pool_average_backward(const Eigen::Tensor<float, 4, Eigen::RowMajor> &grad, int kernel_h, int kernel_w, int stride_h, int stride_w){
-    //todo only hacked so it works backwards for int kernel_h, int kernel_w, int stride_h, int stride_w == 2 but more is not needed for mnist
     std::array<int,4> broadcast({(int)grad.dimension(0),(int)grad.dimension(1)*stride_h,(int)grad.dimension(2)*stride_w,(int)grad.dimension(3)});
     Eigen::Tensor<float, 4, Eigen::RowMajor> factor(1,1,1,1);
     factor.setValues({{{{0.25}}}});
@@ -267,11 +266,10 @@ Eigen::Tensor<float, 4, Eigen::RowMajor> pool_average_backward(const Eigen::Tens
 
 
 Eigen::Tensor<float, 4, Eigen::RowMajor> softmax(const Eigen::Tensor<float, 4, Eigen::RowMajor> &input){
-    //todo make stable
     std::array<int,1> sum = {3};
     std::array<int,4> reshape = {(int)input.dimension(0),(int)input.dimension(1),(int)input.dimension(2),1};
     std::array<int, 4> bcast = {1,1,1,(int)input.dimension(3)};
-    Eigen::Tensor<float, 4, Eigen::RowMajor> exp_tensor = (input-input.maximum(sum).eval().reshape(reshape).broadcast(bcast)).exp();// todo maybe auto instead test
+    Eigen::Tensor<float, 4, Eigen::RowMajor> exp_tensor = (input-input.maximum(sum).eval().reshape(reshape).broadcast(bcast)).exp();
     Eigen::Tensor<float, 4, Eigen::RowMajor> output = exp_tensor / exp_tensor.sum(sum).eval().reshape(reshape).broadcast(bcast);
     return output;
 }
@@ -281,7 +279,7 @@ Eigen::Tensor<float, 3, Eigen::RowMajor> diagonalize(Eigen::Tensor<float, 2, Eig
     int size = input.dimension(1);
     Eigen::Tensor<float, 3, Eigen::RowMajor> output(N, size, size);
     output.setZero();
-    for(int b=0;b<N;b++) {//todo direct assingin not looping more readable
+    for(int b=0;b<N;b++) {
         for (int i = 0; i < size; i++) {
             output.data()[b*size*size+i * (size + 1)] = input.data()[b*size+i];
         }

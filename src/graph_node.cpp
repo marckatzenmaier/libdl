@@ -26,10 +26,8 @@ void GraphNode::setData(const Tensor4f &data) {
 const Tensor4f &GraphNode::getGradient() const {return gradient;}
 
 void GraphNode::setGradient(const Tensor4f &gradient){
-    if((gradient.dimension(1)!=data.dimension(1) ||
-        gradient.dimension(2)!=data.dimension(2) || gradient.dimension(3)!=data.dimension(3))
-       && GraphNode::gradient.dimension(0)!=0 && GraphNode::gradient.dimension(1)!=0
-       && GraphNode::gradient.dimension(2)!=0 && GraphNode::gradient.dimension(3)!=0){
+    if((gradient.dimension(1)!=data.dimension(1) || gradient.dimension(2)!=data.dimension(2) || gradient.dimension(3)!=data.dimension(3))
+       && !(GraphNode::gradient.dimension(0)==0 || GraphNode::gradient.dimension(1)==0 || GraphNode::gradient.dimension(2)==0 || GraphNode::gradient.dimension(3)==0)){
         throw std::runtime_error("error gradient size miss match in node" + name);
     }
     GraphNode::gradient = gradient;
@@ -44,9 +42,6 @@ void GraphNode::addGradient(const Tensor4f &gradient){
     GraphNode::gradient += gradient;
 }
 void GraphNode::clearGradient(){
-    if (GraphNode::data.dimension(0) != GraphNode::gradient.dimension(0)){//todo not possible since batch change apears afterwards
-        gradient = Tensor4f(data.dimension(0), data.dimension(1), data.dimension(2), data.dimension(3));
-    }
     GraphNode::gradient.setZero();
 }
 const Tensor4f &GraphNode::getData() const {return data;}

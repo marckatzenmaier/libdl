@@ -7,7 +7,14 @@
 using namespace std;
 using namespace Eigen;
 
+std::string Placeholder::getType(){return "Placeholder";}
 Placeholder::Placeholder(const std::string& name, const Tensor4f &data)
         : GraphNode(name) {
     setData(data);
+}
+
+void Placeholder::forward(){
+}
+
+void Placeholder::backward(){
 }

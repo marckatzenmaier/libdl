@@ -16,13 +16,11 @@
  * the name need to be unambigous within a graph
  */
 class Placeholder : public GraphNode{
+protected:
+    void forward() override;
+    void backward() override;
 public:
-    void forward() override{};
-
-    void backward() override{};
-
-    std::string getType() override {return "Placeholder";}
-
+    std::string getType() override;
     Placeholder(const std::string &name, const Tensor4f &data);
 };
 
