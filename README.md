@@ -17,11 +17,12 @@ It has two main components **GraphNode** and **Graph** objects and some addition
     - some preinstalled datasets
 # Documentation
 The documentation can be found in html form in *Current build directory*/docs/html/index.html
+For an overview have a look at the [Presentation](https://github.com/Cram13/libdl/blob/master/DL_FROM_SCRATCH_MarcKatzenmaier_tum.pdf)
 # Installation
 For installing the library an installation of cmake is neccesary.
 The first step is to download the repository with:
 ```
-git clone git@gitlab.lrz.de:MarcKatzenmaier/libdl.git
+git clone https://github.com/Cram13/libdl.git
 ```
 Then create the build directory and change into it:
 ```
